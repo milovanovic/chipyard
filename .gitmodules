@@ -127,3 +127,24 @@
 [submodule "toolchains/libgloss"]
 	path = toolchains/libgloss
 	url = https://github.com/ucb-bar/libgloss-htif.git
+[submodule "generators/dsp-blocks/sdf-fft"]
+	path = generators/dsp-blocks/sdf-fft
+	url = https://github.com/milovanovic/sdf-fft
+[submodule "generators/dsp-blocks/nco"]
+	path = generators/dsp-blocks/nco
+	url = https://github.com/milovanovic/nco
+[submodule "generators/dsp-blocks/cfar"]
+	path = generators/dsp-blocks/cfar
+	url = https://github.com/milovanovic/cfar
+[submodule "generators/dsp-blocks/windowing"]
+	path = generators/dsp-blocks/windowing
+	url = https://github.com/milovanovic/windowing
+[submodule "generators/dsp-blocks/lis"]
+	path = generators/dsp-blocks/lis
+	url = https://github.com/milovanovic/lis
+[submodule "generators/dsp-blocks/accumulator"]
+	path = generators/dsp-blocks/accumulator
+	url = https://github.com/milovanovic/accumulator
+[submodule "generators/dsp-blocks/magnitude"]
+	path = generators/dsp-blocks/magnitude
+	url = https://github.com/milovanovic/magnitude
