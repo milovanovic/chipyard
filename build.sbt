@@ -281,3 +281,16 @@ lazy val fpga_shells = (project in file("./fpga/fpga-shells"))
 lazy val fpga_platforms = (project in file("./fpga"))
   .dependsOn(chipyard, fpga_shells)
   .settings(commonSettings)
+
+lazy val `sdf-fft` = (project in file("generators/dsp-blocks/sdf-fft"))
+  .dependsOn(rocketchip, `rocket-dsp-utils`, `api-config-chipsalliance`, dsptools)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(
+    allDependencies := {
+      // drop specific maven dependencies in subprojects in favor of Chipyard's version
+      val dropDeps = Seq(("edu.berkeley.cs", "rocket-dsptools"))
+      allDependencies.value.filterNot { dep =>
+        dropDeps.contains((dep.organization, dep.name))
+      }
+    },
+    commonSettings)
