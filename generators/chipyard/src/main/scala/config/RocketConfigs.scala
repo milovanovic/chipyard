@@ -21,6 +21,32 @@ class TinyRocketConfig extends Config(
   new freechips.rocketchip.subsystem.With1TinyCore ++             // single tiny rocket-core
   new chipyard.config.AbstractConfig)
 
+// DOC include start: SDFFFTRocketConfig
+import fft._
+
+class SDFFFTRocketConfig extends Config(
+  new fftgenerator.WithAXI4SDFFFT(
+    FFTParams.fixed(
+        dataWidth = 16,
+        twiddleWidth = 16,
+        numPoints = 256,
+        useBitReverse  = true,
+        runTime = true,
+        numAddPipes = 1,
+        numMulPipes = 1,
+        use4Muls = true,
+        //sdfRadix = "2",
+        expandLogic = Array.fill(log2Up(256))(0),//(1).zipWithIndex.map { case (e,ind) => if (ind < 4) 1 else 0 }, // expand first four stages, other do not grow
+        keepMSBorLSB = Array.fill(log2Up(256))(true),
+        minSRAMdepth = 256, // memories larger than 64 should be mapped on block ram
+        binPoint = 10
+      ),
+      fftAddress = AddressSet(0x2000, 0xFF)
+  ) ++
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractConfig)
+// DOC include end: SDFFFTRocketConfig
+
 // DOC include start: FFTRocketConfig
 class FFTRocketConfig extends Config(
   new fftgenerator.WithFFTGenerator(baseAddr=0x2000, numPoints=8, width=16, decPt=8) ++ // add 8-point mmio fft at 0x2000 with 16bit fixed-point numbers.
