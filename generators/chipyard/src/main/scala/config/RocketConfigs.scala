@@ -23,9 +23,11 @@ class TinyRocketConfig extends Config(
 
 // DOC include start: SDFFFTRocketConfig
 import fft._
+import chisel3.util.log2Up
+import freechips.rocketchip.diplomacy.AddressSet
 
 class SDFFFTRocketConfig extends Config(
-  new fftgenerator.WithAXI4SDFFFT(
+  new fft.WithAXI4SDFFFT(
     FFTParams.fixed(
         dataWidth = 16,
         twiddleWidth = 16,
