@@ -45,6 +45,8 @@ class SDFFFTRocketConfig extends Config(
       ),
       fftAddress = AddressSet(0x2000, 0xFF)
   ) ++
+  new chipyard.iobinders.WithSDFFFTPunchthrough  ++
+  new chipyard.harness.WithTiedOffSDFFFT         ++
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractConfig)
 // DOC include end: SDFFFTRocketConfig
