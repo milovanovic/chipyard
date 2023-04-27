@@ -434,13 +434,13 @@ import freechips.rocketchip.amba.axi4stream._
 import freechips.rocketchip.diplomacy._
 
 class WithSDFFFTPunchthrough extends OverrideLazyIOBinder({
-  (system: CanHavePeripheryAXI4SDFFFT) => {
+  (system: CanHavePeripherySDFFFT) => {
     implicit val p: Parameters = GetSystemParameters(system)
 
     InModuleBody {
-      val ports: Seq[AXI4SDFFFTIO[AXI4StreamBundle]] = { 
+      val ports: Seq[SDFFFTIO[AXI4StreamBundle]] = { 
 
-        val pins = IO(new AXI4SDFFFTIO(Flipped(system.fft.get(0).cloneType), Flipped(system.fft.get(1).cloneType)))
+        val pins = IO(new SDFFFTIO(Flipped(system.fft.get(0).cloneType), Flipped(system.fft.get(1).cloneType)))
         system.fft.get(0) <> pins.in
         pins.out <> system.fft.get(1)
         Seq(pins)

@@ -27,7 +27,7 @@ import chisel3.util.log2Up
 import freechips.rocketchip.diplomacy.AddressSet
 
 class SDFFFTRocketConfig extends Config(
-  new fft.WithAXI4SDFFFT(
+  new fft.WithSDFFFT(
     FFTParams.fixed(
         dataWidth = 16,
         twiddleWidth = 16,
@@ -43,7 +43,8 @@ class SDFFFTRocketConfig extends Config(
         minSRAMdepth = 256, // memories larger than 64 should be mapped on block ram
         binPoint = 10
       ),
-      fftAddress = AddressSet(0x2000, 0xFF)
+      fftAddress = AddressSet(0x2000, 0xFF),
+      useAXI4    = false
   ) ++
   new chipyard.iobinders.WithSDFFFTPunchthrough  ++
   new chipyard.harness.WithTiedOffSDFFFT         ++

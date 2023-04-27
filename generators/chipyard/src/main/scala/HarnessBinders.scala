@@ -349,11 +349,11 @@ import freechips.rocketchip.amba.axi4stream._
 import chisel3.experimental.{DataMirror}
 
 class WithTiedOffSDFFFT extends OverrideHarnessBinder({
-  (system: CanHavePeripheryAXI4SDFFFT, th: HasHarnessSignalReferences, ports: Seq[AXI4SDFFFTIO[AXI4StreamBundle]]) => {
+  (system: CanHavePeripherySDFFFT, th: HasHarnessSignalReferences, ports: Seq[SDFFFTIO[AXI4StreamBundle]]) => {
     val p: Parameters = chipyard.iobinders.GetSystemParameters(system)
     ports.map { case port =>
 
-      AXI4SDFFFTAdapter.tieoff(port)
+      SDFFFTAdapter.tieoff(port)
 
     }
   }

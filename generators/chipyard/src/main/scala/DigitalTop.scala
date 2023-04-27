@@ -33,7 +33,7 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with nvidia.blocks.dla.CanHavePeripheryNVDLA // Enables optionally having an NVDLA
   with chipyard.clocking.HasChipyardPRCI // Use Chipyard reset/clock distribution
   with fftgenerator.CanHavePeripheryFFT // Enables optionally having an MMIO-based FFT block
-  with fft.CanHavePeripheryAXI4SDFFFT // Enables optionally having an SDF-FFT block
+  with fft.CanHavePeripherySDFFFT // Enables optionally having an SDF-FFT block
 {
   override lazy val module = new DigitalTopModule(this)
 }
