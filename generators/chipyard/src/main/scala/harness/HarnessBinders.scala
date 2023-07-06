@@ -389,3 +389,11 @@ class WithClockAndResetFromHarness extends OverrideHarnessBinder({
     })
   }
 })
+
+// Queue Added
+class WithTiedOffAXI4QueueBlock extends OverrideHarnessBinder({
+  (system: chipyard.queue.CanHavePeripheryAXI4QueueBlock, th: HasHarnessInstantiators, ports: Seq[chipyard.queue.QueueIO]) => {
+    val p: Parameters = chipyard.iobinders.GetSystemParameters(system)
+    ports.map { case port => chipyard.queue.AXI4QueueBlockAdapter.tieoff(port)}
+  }
+})
