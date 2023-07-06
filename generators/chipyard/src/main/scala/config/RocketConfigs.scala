@@ -11,6 +11,13 @@ class RocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++         // single rocket-core
   new chipyard.config.AbstractConfig)
 
+class QueueConfig extends Config(
+  new chipyard.queue.WithQueueBlock() ++
+  new chipyard.iobinders.WithQueueBlockPunchthrough ++
+  new chipyard.harness.WithTiedOffQueueBlock ++
+  new TinyRocketConfig
+)
+
 class TinyRocketConfig extends Config(
   new chipyard.config.WithTLSerialLocation(
     freechips.rocketchip.subsystem.FBUS,
