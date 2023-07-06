@@ -12,9 +12,9 @@ class RocketConfig extends Config(
   new chipyard.config.AbstractConfig)
 
 class QueueConfig extends Config(
-  new chipyard.queue.WithAXI4QueueBlock() ++
-  new chipyard.iobinders.WithAXI4QueueBlockPunchthrough ++
-  new chipyard.harness.WithTiedOffAXI4QueueBlock ++
+  new chipyard.queue.WithQueueBlock() ++
+  new chipyard.iobinders.WithQueueBlockPunchthrough ++
+  new chipyard.harness.WithTiedOffQueueBlock ++
   new TinyRocketConfig
 )
 class TinyRocketConfig extends Config(

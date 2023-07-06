@@ -426,8 +426,8 @@ class WithDontTouchPorts extends OverrideIOBinder({
 
 
 // Queue added
-class WithAXI4QueueBlockPunchthrough extends OverrideIOBinder({
-  (system: chipyard.queue.CanHavePeripheryAXI4QueueBlockModuleImp) => {
+class WithQueueBlockPunchthrough extends OverrideIOBinder({
+  (system: chipyard.queue.CanHavePeripheryQueueBlockModuleImp) => {
     val ports: Option[chipyard.queue.QueueIO] = system.queue.map { t =>
       val queue = IO(DataMirror.internal.chiselTypeClone[chipyard.queue.QueueIO](t)).suggestName("queue")
       queue <> t

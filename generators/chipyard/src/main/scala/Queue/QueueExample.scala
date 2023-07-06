@@ -12,7 +12,6 @@ import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.subsystem._
-import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.regmapper._
 
 
@@ -21,8 +20,17 @@ class QueueIO extends Bundle {
    val out = DecoupledIO(FixedPoint(16.W, 8.BP))
 }
 
-class AXI4QueueBlock(address: AddressSet, beatBytes: Int = 4)(implicit p: Parameters) extends QueueBlock(beatBytes) {
-  val mem = Some(AXI4RegisterNode(address = address, beatBytes = beatBytes))
+class TLQueueBlock(address: AddressSet, beatBytes: Int = 4)(implicit p: Parameters) extends QueueBlock(beatBytes) {
+  val devname = "TLQueueBlock"
+  val devcompat = Seq("QueueBlock", "testBlock")
+  val device = new SimpleDevice(devname, devcompat) {
+    override def describe(resources: ResourceBindings): Description = {
+      val Description(name, mapping) = super.describe(resources)
+      Description(name, mapping)
+    }
+  }
+  // make diplomatic TL node for regmap
+  val mem = Some(TLRegisterNode(address = Seq(address), device = device, beatBytes = beatBytes))
   override def regmap(mapping: (Int, Seq[RegField])*): Unit = mem.get.regmap(mapping:_*)
 }
 
@@ -49,71 +57,54 @@ abstract class QueueBlock(beatBytes: Int) extends LazyModule()(Parameters.empty)
     }
 }
 
-trait AXI4QueueBlockStandaloneBlock extends AXI4QueueBlock{
-    def beatBytes: Int = 4
-    def standaloneParams = AXI4BundleParameters(addrBits = beatBytes*8, dataBits = beatBytes*8, idBits = 1)
-    val ioMem = mem.map { m =>
-        {
-        val ioMemNode = BundleBridgeSource(() => AXI4Bundle(standaloneParams))
-        m :=
-            BundleBridgeToAXI4(AXI4MasterPortParameters(Seq(AXI4MasterParameters("bundleBridgeToAXI4")))) :=
-            ioMemNode
-        val ioMem = InModuleBody { ioMemNode.makeIO() }
-        ioMem
-        }
-    }
 
-    def makeCustomIO(): QueueIO = {
-        val io2: QueueIO = IO(io.cloneType)
-        io2.suggestName("io")
-        io2 <> io
-        io2
-    }
-    val ioBlock = InModuleBody { makeCustomIO() }
-}
+/* QueueBlock parameters and addresses */
+case class QueueBlockAddress(
+  queueAddress: AddressSet
+)
 
+/* QueueBlock UInt Key */
+case object QueueBlockKey extends Field[Option[QueueBlockAddress]](None)
 
-/* LIS parameters and addresses */
-case class AXI4QueueBlockAddress(queueAddress: AddressSet)
+trait CanHavePeripheryQueueBlock { this: BaseSubsystem =>
+  private val portName = "QueueBlock"
 
-/* AXI4QueueBlock UInt Key */
-case object AXI4QueueBlockKey extends Field[Option[AXI4QueueBlockAddress]](None)
-
-trait CanHavePeripheryAXI4QueueBlock { this: BaseSubsystem =>
-  private val portName = "AXI4QueueBlock"
-
-  val queue = p(AXI4QueueBlockKey) match {
+  val queue = p(QueueBlockKey) match {
     case Some(params) => {
-        val queue = LazyModule(new AXI4QueueBlock(address = params.queueAddress, beatBytes = pbus.beatBytes){
-            def makeCustomIO(): QueueIO = {
-                val io2: QueueIO = IO(io.cloneType)
-                io2.suggestName("io")
-                io2 <> io
-                io2
-            }
-            val ioBlock = InModuleBody { makeCustomIO() }
-        })
-        // Connect mem
-        pbus.coupleTo("queue") { queue.mem.get := AXI4Buffer() := TLToAXI4() := TLFragmenter(pbus.beatBytes, pbus.blockBytes, holdFirstDeny = true) := _ }
-        // return
-        Some(queue.ioBlock)
+      val queue = LazyModule(new TLQueueBlock(address = params.queueAddress, beatBytes = pbus.beatBytes){
+        def makeCustomIO(): QueueIO = {
+          val io2: QueueIO = IO(io.cloneType)
+          io2.suggestName("io")
+          io2 <> io
+          io2
+        }
+        val ioBlock = InModuleBody { makeCustomIO() }
+      })
+      // Connect mem
+      pbus.coupleTo("queue") { queue.mem.get := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
+      // return
+      Some(queue.ioBlock)
     }
     case None => None
   }
 }
 
-trait CanHavePeripheryAXI4QueueBlockModuleImp extends LazyModuleImp {
-    val outer: CanHavePeripheryAXI4QueueBlock
+trait CanHavePeripheryQueueBlockModuleImp extends LazyModuleImp {
+    val outer: CanHavePeripheryQueueBlock
     val queue  = outer.queue
 }
 
-/* Mixin to add AXI4LIS to rocket config */
-class WithAXI4QueueBlock(queueAddress: AddressSet = AddressSet(0x2000, 0xff)) extends Config((site, here, up) => {
-    case AXI4QueueBlockKey => Some((AXI4QueueBlockAddress(queueAddress = queueAddress)))
+/* Mixin to add QueueBlock to rocket config */
+class WithQueueBlock(queueAddress: AddressSet = AddressSet(0x2000, 0xff)) extends Config((site, here, up) => {
+    case QueueBlockKey => Some(
+      QueueBlockAddress(
+        queueAddress = queueAddress
+      )
+    )
 })
 
 
-case object AXI4QueueBlockAdapter {
+case object QueueBlockAdapter {
   def tieoff(queue: Option[QueueIO]): Unit = {
     queue.foreach { s =>
       s.in.valid := true.B
@@ -123,14 +114,4 @@ case object AXI4QueueBlockAdapter {
   }
 
   def tieoff(queue: QueueIO): Unit = { tieoff(Some(queue)) }
-}
-
-// App
-object AXI4QueueBlockApp extends App
-{
-  implicit val p: Parameters = Parameters.empty
-
-  val lazyDut = LazyModule(new AXI4QueueBlock(AddressSet(0x2000, 0xF), 4) with AXI4QueueBlockStandaloneBlock)
-
-  (new ChiselStage).execute(Array("--target-dir", "verilog/AXI4QueueBlock"), Seq(ChiselGeneratorAnnotation(() => lazyDut.module)))
 }
