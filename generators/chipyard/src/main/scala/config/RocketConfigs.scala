@@ -11,12 +11,16 @@ class RocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++         // single rocket-core
   new chipyard.config.AbstractConfig)
 
-class QueueConfig extends Config(
-  new chipyard.queue.WithQueueBlock() ++
-  new chipyard.iobinders.WithQueueBlockPunchthrough ++
-  new chipyard.harness.WithTiedOffQueueBlock ++
+class FixedPointQueueConfig extends Config(
+  new chipyard.queue.WithFixedPointQueueBlock() ++
   new TinyRocketConfig
 )
+
+class UIntQueueConfig extends Config(
+  new chipyard.queue.WithUIntQueueBlock() ++
+  new TinyRocketConfig
+)
+
 class TinyRocketConfig extends Config(
   new chipyard.iobinders.WithDontTouchIOBinders(false) ++         // TODO FIX: Don't dontTouch the ports
   new freechips.rocketchip.subsystem.WithIncoherentBusTopology ++ // use incoherent bus topology

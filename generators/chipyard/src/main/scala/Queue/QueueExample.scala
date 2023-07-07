@@ -15,12 +15,13 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.regmapper._
 
 
-class QueueIO extends Bundle {
-   val in = Flipped(DecoupledIO(FixedPoint(16.W, 8.BP)))
-   val out = DecoupledIO(FixedPoint(16.W, 8.BP))
+class QueueIO[T <: Data : Real: BinaryRepresentation](proto: T) extends Bundle {
+   val in = Flipped(DecoupledIO(proto.cloneType))
+   val out = DecoupledIO(proto.cloneType)
 }
 
-class TLQueueBlock(address: AddressSet, beatBytes: Int = 4)(implicit p: Parameters) extends QueueBlock(beatBytes) {
+
+class TLQueueBlock[T <: Data : Real: BinaryRepresentation](proto: T, address: AddressSet, beatBytes: Int = 4)(implicit p: Parameters) extends QueueBlock(proto, beatBytes) {
   val devname = "TLQueueBlock"
   val devcompat = Seq("QueueBlock", "testBlock")
   val device = new SimpleDevice(devname, devcompat) {
@@ -34,9 +35,9 @@ class TLQueueBlock(address: AddressSet, beatBytes: Int = 4)(implicit p: Paramete
   override def regmap(mapping: (Int, Seq[RegField])*): Unit = mem.get.regmap(mapping:_*)
 }
 
-abstract class QueueBlock(beatBytes: Int) extends LazyModule()(Parameters.empty) with HasCSR {
+abstract class QueueBlock[T <: Data : Real: BinaryRepresentation](proto:T, beatBytes: Int) extends LazyModule()(Parameters.empty) with HasCSR {
 
-    lazy val io = Wire(new QueueIO)
+    lazy val io = Wire(new QueueIO(proto))
 
     lazy val module = new LazyModuleImp(this) {
 
@@ -59,59 +60,82 @@ abstract class QueueBlock(beatBytes: Int) extends LazyModule()(Parameters.empty)
 
 
 /* QueueBlock parameters and addresses */
-case class QueueBlockAddress(
+case class QueueBlockParams[T <: Data : Real: BinaryRepresentation](
+  proto: T,
   queueAddress: AddressSet
 )
 
-/* QueueBlock UInt Key */
-case object QueueBlockKey extends Field[Option[QueueBlockAddress]](None)
+/* FixedPoint Queue Bellow */
+case object QueueBlockFixedPointKey extends Field[Option[QueueBlockParams[FixedPoint]]](None)
 
-trait CanHavePeripheryQueueBlock { this: BaseSubsystem =>
+trait CanHavePeripheryFixedPointQueueBlock { this: BaseSubsystem =>
   private val portName = "QueueBlock"
 
-  val queue = p(QueueBlockKey) match {
+  val queue = p(QueueBlockFixedPointKey) match {
     case Some(params) => {
-      val queue = LazyModule(new TLQueueBlock(address = params.queueAddress, beatBytes = pbus.beatBytes){
-        def makeCustomIO(): QueueIO = {
-          val io2: QueueIO = IO(io.cloneType)
+      val queue = LazyModule(new TLQueueBlock(proto = params.proto, address = params.queueAddress, beatBytes = pbus.beatBytes){
+        def makeCustomIO(): QueueIO[FixedPoint] = {
+          val io2: QueueIO[FixedPoint] = IO(io.cloneType)
           io2.suggestName("io")
           io2 <> io
           io2
         }
         val ioBlock = InModuleBody { makeCustomIO() }
       })
-      // Connect mem
       pbus.coupleTo("queue") { queue.mem.get := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
-      // return
       Some(queue.ioBlock)
     }
     case None => None
   }
 }
 
-trait CanHavePeripheryQueueBlockModuleImp extends LazyModuleImp {
-    val outer: CanHavePeripheryQueueBlock
+trait CanHavePeripheryFixedPointQueueBlockModuleImp extends LazyModuleImp {
+    val outer: CanHavePeripheryFixedPointQueueBlock
     val queue  = outer.queue
 }
 
-/* Mixin to add QueueBlock to rocket config */
-class WithQueueBlock(queueAddress: AddressSet = AddressSet(0x2000, 0xff)) extends Config((site, here, up) => {
-    case QueueBlockKey => Some(
-      QueueBlockAddress(
+class WithFixedPointQueueBlock(proto: FixedPoint = FixedPoint(16.W, 14.BP), queueAddress: AddressSet = AddressSet(0x2000, 0xff)) extends Config((site, here, up) => {
+    case QueueBlockFixedPointKey => Some(
+      QueueBlockParams(
+        proto = proto,
         queueAddress = queueAddress
       )
     )
 })
 
+/* UInt Queue Bellow */
+case object QueueBlockUIntKey extends Field[Option[QueueBlockParams[UInt]]](None)
 
-case object QueueBlockAdapter {
-  def tieoff(queue: Option[QueueIO]): Unit = {
-    queue.foreach { s =>
-      s.in.valid := true.B
-      s.in.bits := 0x11112222.U
-      s.out.ready := true.B
+trait CanHavePeripheryUIntQueueBlock { this: BaseSubsystem =>
+  private val portName = "QueueBlock"
+  val queueUInt = p(QueueBlockUIntKey) match {
+    case Some(params) => {
+      val queueUInt = LazyModule(new TLQueueBlock(proto = params.proto, address = params.queueAddress, beatBytes = pbus.beatBytes){
+        def makeCustomIO(): QueueIO[UInt] = {
+          val io2: QueueIO[UInt] = IO(io.cloneType)
+          io2.suggestName("io")
+          io2 <> io
+          io2
+        }
+        val ioBlock = InModuleBody { makeCustomIO() }
+      })
+      pbus.coupleTo("queue") { queueUInt.mem.get := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
+      Some(queueUInt.ioBlock)
     }
+    case None => None
   }
-
-  def tieoff(queue: QueueIO): Unit = { tieoff(Some(queue)) }
 }
+
+trait CanHavePeripheryUIntQueueBlockModuleImp extends LazyModuleImp {
+    val outer: CanHavePeripheryUIntQueueBlock
+    val queueUInt  = outer.queueUInt
+}
+
+class WithUIntQueueBlock(proto: UInt = UInt(16.W), queueAddress: AddressSet = AddressSet(0x2000, 0xff)) extends Config((site, here, up) => {
+    case QueueBlockUIntKey => Some(
+      QueueBlockParams(
+        proto = proto,
+        queueAddress = queueAddress
+      )
+    )
+})

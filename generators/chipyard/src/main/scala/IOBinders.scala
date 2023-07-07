@@ -423,16 +423,3 @@ class WithTLMemPunchthrough extends OverrideIOBinder({
 class WithDontTouchPorts extends OverrideIOBinder({
   (system: DontTouch) => system.dontTouchPorts(); (Nil, Nil)
 })
-
-
-// Queue added
-class WithQueueBlockPunchthrough extends OverrideIOBinder({
-  (system: chipyard.queue.CanHavePeripheryQueueBlockModuleImp) => {
-    val ports: Option[chipyard.queue.QueueIO] = system.queue.map { t =>
-      val queue = IO(DataMirror.internal.chiselTypeClone[chipyard.queue.QueueIO](t)).suggestName("queue")
-      queue <> t
-      queue
-    }
-    (ports.toSeq, Nil)
-  }
-})
