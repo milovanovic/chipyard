@@ -130,3 +130,6 @@
 [submodule "generators/bar-fetchers"]
 	path = generators/bar-fetchers
 	url = https://github.com/ucb-bar/bar-fetchers.git
+[submodule "generators/dsp-blocks"]
+	path = generators/dsp-blocks
+	url = git@github.com:milovanovic/dsp-blocks.git
