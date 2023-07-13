@@ -1,8 +1,9 @@
 package chipyard.queue
 
-import chisel3._
+import chisel3.{fromIntToBinaryPoint => _, fromDoubleToLiteral => _, _}
 import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
-import chisel3.experimental.{FixedPoint, IO}
+import chisel3.experimental.{IO}
+import fixedpoint._
 import chisel3.util._
 import dspblocks._
 import freechips.rocketchip.amba.axi4stream._

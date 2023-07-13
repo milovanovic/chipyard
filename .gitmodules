@@ -121,3 +121,6 @@
 [submodule "generators/mempress"]
 	path = generators/mempress
 	url = https://github.com/ucb-bar/mempress.git
+[submodule "generators/fixedpoint"]
+	path = generators/fixedpoint
+	url = git@github.com:ucb-bar/fixedpoint.git
