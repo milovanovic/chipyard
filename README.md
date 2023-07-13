@@ -1,6 +1,6 @@
 # Queue example (SInt, UInt, FixedPoint)
 
-In the newer versions of the chipyard (above tag 1.8.1), when using the Chipyard's makeflow to generate verilog for Queue with input data type SInt (or FixedPoint), the following problem occurs:
+In the newer versions of the chipyard (above tag 1.8.1), when using the Chipyard's makeflow to generate verilog for Queue with input data type SInt (or FixedPoint), the following problem occurs durring the execution of firtool command inside [common.mk](./common.mk):
 ```scala
 Decoupled.scala:273:95: error: memories should be flattened before running LowerMemory
 Decoupled.scala:273:95: note: see current operation: %4:2 = "firrtl.mem"() {annotations = [], depth = 2 : i64, name = "ram", nameKind = #firrtl<name_kind droppable_name>, portAnnotations = [[], []], portNames = ["MPORT", "io_deq_bits_MPORT"], readLatency = 0 : i32, ruw = 0 : i32, writeLatency = 1 : i32} : () -> (!firrtl.bundle<addr: uint<1>, en: uint<1>, clk: clock, data: sint<16>, mask: uint<1>>, !firrtl.bundle<addr: uint<1>, en: uint<1>, clk: clock, data flip: sint<16>>)
