@@ -1,22 +1,20 @@
-// See LICENSE for license details.
 package chipyard.fpga.nexysvideo
 
 import chisel3._
 import chisel3.util._
 import freechips.rocketchip.diplomacy._
-import org.chipsalliance.cde.config.{Parameters}
+import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.tilelink._
-import freechips.rocketchip.subsystem.{SystemBusKey}
-
+import freechips.rocketchip.subsystem.SystemBusKey
 import sifive.fpgashells.shell.xilinx._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.clocks.{ClockGroup, ClockSinkNode, PLLFactoryKey, ResetWrangler}
-
 import sifive.blocks.devices.uart._
-
 import chipyard._
 import chipyard.harness._
-import chipyard.iobinders.{HasIOBinders}
+import chipyard.iobinders.HasIOBinders
+import devices.xilinx.xilinxnexysvideodeserializer.{NexysVideoDeserializerIO, XilinxNexysVideoDeserializer, XilinxNexysVideoDeserializerParams}
+import lvdsphy.DataRXKey
 
 class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoShell {
   def dp = designParameters
@@ -35,6 +33,10 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
 
   val io_uart_bb = BundleBridgeSource(() => new UARTPortIO(dp(PeripheryUARTKey).headOption.getOrElse(UARTParams(0))))
   val uartOverlay = dp(UARTOverlayKey).head.place(UARTDesignInput(io_uart_bb))
+
+  val io_lvds = if (dp(DataRXKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoDeserializerIO(4))) else None
+  val lvdsOverlay = if (dp(DataRXKey).isDefined) Some(dp(LVDSOverlayKey).head.place(LVDSDesignInput(io_lvds.get)).asInstanceOf[LVDSNexysVideoPlacedOverlay]) else None
+//  val lvdsmod = if (dp(DataRXKey).isDefined) Some(LazyModule(new XilinxNexysVideoDeserializer(XilinxNexysVideoDeserializerParams(channels=4)))) else None
 
   // Optional DDR
   val ddrOverlay = if (p(NexysVideoShellDDR)) Some(dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode)).asInstanceOf[DDRNexysVideoPlacedOverlay]) else None
@@ -64,7 +66,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
       val period = (BigInt(100) << 20) / status_leds.size
       val counter = RegInit(0.U(log2Ceil(period).W))
       val on = RegInit(0.U(log2Ceil(status_leds.size).W))
-      status_leds.zipWithIndex.map { case (o,s) => o := on === s.U }
+      status_leds.zipWithIndex.foreach { case (o,s) => o := on === s.U }
       counter := Mux(counter === (period-1).U, 0.U, counter + 1.U)
       when (counter === 0.U) {
         on := Mux(on === (status_leds.size-1).U, 0.U, on + 1.U)
@@ -85,6 +87,12 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
       ddrOverlay.get.mig.module.reset := harnessBinderReset
       ddrBlockDuringReset.get.module.clock := harnessBinderClock
       ddrBlockDuringReset.get.module.reset := harnessBinderReset.asBool || !ddrOverlay.get.mig.module.io.port.init_calib_complete
+    }
+
+    if (dp(DataRXKey).isDefined) {
+      io_lvds.get.bundle <> lvdsOverlay.get.deser.module.io
+      other_leds.head := lvdsOverlay.get.deser.module.io.o_valid === 1.U
+      io_lvds.get.bundle.i_rst := pllReset
     }
 
     instantiateChipTops()

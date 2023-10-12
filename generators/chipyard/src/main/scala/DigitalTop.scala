@@ -35,6 +35,7 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with chipyard.clocking.HasChipyardPRCI // Use Chipyard reset/clock distribution
   with fftgenerator.CanHavePeripheryFFT // Enables optionally having an MMIO-based FFT block
   with constellation.soc.CanHaveGlobalNoC // Support instantiating a global NoC interconnect
+  with lvdsphy.CanHavePeripheryDataRX // Enables optionally having an DataRX block
 {
   override lazy val module = new DigitalTopModule(this)
 }
@@ -48,5 +49,6 @@ class DigitalTopModule[+L <: DigitalTop](l: L) extends ChipyardSystemModule(l)
   with sifive.blocks.devices.spi.HasPeripherySPIFlashModuleImp
   with sifive.blocks.devices.spi.HasPeripherySPIModuleImp
   with chipyard.example.CanHavePeripheryGCDModuleImp
+  with lvdsphy.CanHavePeripheryDataRXModuleImp // Enables optionally having an DataRX block
   with freechips.rocketchip.util.DontTouch
 // DOC include end: DigitalTop

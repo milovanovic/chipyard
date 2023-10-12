@@ -1,20 +1,10 @@
 // See LICENSE for license details.
 package chipyard.fpga.nexysvideo
 
-import org.chipsalliance.cde.config._
-import freechips.rocketchip.subsystem._
-import freechips.rocketchip.devices.debug._
-import freechips.rocketchip.devices.tilelink._
 import freechips.rocketchip.diplomacy._
-import freechips.rocketchip.system._
-import freechips.rocketchip.tile._
-
-import sifive.blocks.devices.uart._
-import sifive.fpgashells.shell.{DesignKey}
-
-import testchipip.{SerialTLKey}
-
-import chipyard.{BuildSystem}
+import lvdsphy._
+import org.chipsalliance.cde.config._
+import sifive.fpgashells.shell.DesignKey
 
 // don't use FPGAShell's DesignKey
 class WithNoDesignKey extends Config((site, here, up) => {
@@ -23,6 +13,7 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // DOC include start: WithNexysVideoTweaks and Rocket
 class WithNexysVideoTweaks extends Config(
+  new chipyard.iobinders.WithDataRXPunchthrough ++
   new WithNexysVideoUARTTSI ++
   new WithNexysVideoDDRTL ++
   new WithNoDesignKey ++
@@ -43,6 +34,8 @@ class WithNexysVideoTweaks extends Config(
 
 class RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
+  new WithDataRX(DataRXParams()) ++
+  new WithNexysVideoDataRX ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
 // DOC include end: WithNexysVideoTweaks and Rocket
