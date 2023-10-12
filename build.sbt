@@ -148,7 +148,7 @@ lazy val testchipip = (project in file("generators/testchipip"))
 lazy val chipyard = (project in file("generators/chipyard"))
   .dependsOn(testchipip, rocketchip, boom, hwacha, sifive_blocks, sifive_cache, iocell,
     sha3, // On separate line to allow for cleaner tutorial-setup patches
-    dsptools, rocket_dsp_utils,
+    dsptools, rocket_dsp_utils, `lvds-phy`,
     gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,
     constellation, mempress, barf, shuttle)
   .settings(libraryDependencies ++= rocketLibDeps.value)
@@ -294,10 +294,21 @@ lazy val firechip = (project in file("generators/firechip"))
     Test / testOptions += Tests.Argument("-oF")
   )
 lazy val fpga_shells = (project in file("./fpga/fpga-shells"))
-  .dependsOn(rocketchip, sifive_blocks)
+  .dependsOn(rocketchip, sifive_blocks, `lvds-phy`)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
 
 lazy val fpga_platforms = (project in file("./fpga"))
   .dependsOn(chipyard, fpga_shells)
+  .settings(commonSettings)
+
+// NovelIC added
+lazy val `dsp-utils` = (project in file("generators/dsp-utils"))
+  .dependsOn(dsptools, rocket_dsp_utils, rocketchip)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+
+lazy val `lvds-phy` = (project in file("generators/LVDS_PHY"))
+  .dependsOn(rocket_dsp_utils, rocketchip, `dsp-utils`)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
