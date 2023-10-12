@@ -133,3 +133,27 @@
 [submodule "generators/hardfloat"]
 	path = generators/hardfloat
 	url = https://github.com/ucb-bar/berkeley-hardfloat.git
+[submodule "generators/dsp-blocks/sdf-fft"]
+	path = generators/dsp-blocks/sdf-fft
+	url = git@github.com:milovanovic/sdf-fft.git
+[submodule "generators/dsp-blocks/windowing"]
+	path = generators/dsp-blocks/windowing
+	url = git@github.com:milovanovic/windowing.git
+[submodule "generators/dsp-blocks/magnitude"]
+	path = generators/dsp-blocks/magnitude
+	url = git@github.com:milovanovic/magnitude.git
+[submodule "generators/dsp-blocks/cfar"]
+	path = generators/dsp-blocks/cfar
+	url = git@github.com:milovanovic/cfar.git
+[submodule "generators/dsp-blocks/accumulator"]
+	path = generators/dsp-blocks/accumulator
+	url = git@github.com:milovanovic/accumulator.git
+[submodule "generators/dsp-blocks/zeropadder"]
+	path = generators/dsp-blocks/zeropadder
+	url = git@github.com:milovanovic/zeropadder.git
+[submodule "generators/dsp-blocks/axi2ethernet"]
+	path = generators/dsp-blocks/axi2ethernet
+	url = git@github.com:milovanovic/axi2ethernet.git
+[submodule "generators/dsp-blocks/gbemac"]
+	path = generators/dsp-blocks/gbemac
+	url = git@github.com:milovanovic/gbemac.git
