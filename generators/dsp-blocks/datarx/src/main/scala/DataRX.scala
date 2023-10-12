@@ -3,11 +3,13 @@
 package datarx
 
 import chisel3._
+import chisel3.experimental.DataMirror
 import chisel3.util.{Cat, DecoupledIO, ShiftRegister}
 import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
 import freechips.rocketchip.diplomacy._
 import org.chipsalliance.cde.config.Parameters
 import dsputils._
+import freechips.rocketchip.amba.axi4stream.{AXI4StreamBundle, AXI4StreamMasterNode, AXI4StreamMasterParameters, AXI4StreamSlaveParameters, AXI4StreamToBundleBridge}
 
 // DataRX parameters
 case class DataRXParams(
@@ -21,6 +23,11 @@ case class DataRXParams(
   require(channels >= 1, "Number of channels must be greater or equal to one!")
 }
 
+class DataRXBundle(in1: DataRXIO, in2: AXI4StreamBundle) extends Bundle {
+  val pins: DataRXIO = in1.cloneType
+  val axistream: AXI4StreamBundle = in2.cloneType
+}
+
 class DataRXIO(channels: Int, async: Boolean) extends Bundle {
   val i_clock: Clock = Input(Clock())
   val i_reset: Bool = Input(Bool())
@@ -32,8 +39,6 @@ class DataRXIO(channels: Int, async: Boolean) extends Bundle {
   // DSP clock and reset if Async FIFO enabled
   val i_dsp_clock: Option[Clock] = if (async) Some(Input(Clock())) else None
   val i_dsp_reset: Option[Bool] = if (async) Some(Input(Bool())) else None
-  // output stream signals
-  val out = DecoupledIO(UInt((channels*16).W))
 }
 
 object DataRXIO {
@@ -41,13 +46,18 @@ object DataRXIO {
 }
 
 trait DataRXPins extends DataRX{
-  private def makeCustomIO(): DataRXIO = {
-    val io2: DataRXIO = IO(io.cloneType)
+  // Output stream node
+  private val ioOutNode = BundleBridgeSink[AXI4StreamBundle]()
+  ioOutNode := AXI4StreamToBundleBridge(AXI4StreamSlaveParameters()) := streamNode
+  private def makeCustomIO(): DataRXBundle = {
+    val io2: DataRXBundle = IO(new DataRXBundle(io.cloneType, ioOutNode.bundle.cloneType))
     io2.suggestName("io")
-    io2 <> io
+    io2.pins <> io
+    io2.axistream <> ioOutNode.bundle
     io2
   }
-  val ioBlock: ModuleValue[DataRXIO] = InModuleBody { makeCustomIO() }
+
+  val ios : ModuleValue[DataRXBundle] = InModuleBody { makeCustomIO() }
 }
 
 class DataRX(val params: DataRXParams) extends LazyModule()(Parameters.empty) {
@@ -61,12 +71,16 @@ class DataRX(val params: DataRXParams) extends LazyModule()(Parameters.empty) {
   val asyncQueue    = if (params.asyncParams.isDefined ) Some(LazyModule(new AXI4StreamAsyncQueueWithControlBlock(params.asyncParams.get) with AXI4StreamAsyncQueueWithControlStandalone{
     override def beatBytes: Int = params.channels*2
   })) else None
-
+  // IO pins
   lazy val io: DataRXIO = Wire(new DataRXIO(params.channels, params.asyncParams.isDefined))
+
+  // StreamNode
+  val streamNode: AXI4StreamMasterNode = AXI4StreamMasterNode(AXI4StreamMasterParameters(name = "outStream", n = params.channels * 2, u = 0, numMasters = 1))
 
   lazy val module: LazyRawModuleImp = new LazyRawModuleImp(this) {
     childClock := io.i_clock
     childReset := io.i_reset
+    val out: AXI4StreamBundle = streamNode.out.head._1
 
     // bitslip
     bitslip.ioBlock.i_data := io.i_valid
@@ -96,7 +110,7 @@ class DataRX(val params: DataRXParams) extends LazyModule()(Parameters.empty) {
 
     if(asyncQueue.isDefined) {
       // AsyncQueue (Slave-Side)
-      asyncQueue.get.in.bits := DontCare
+      asyncQueue.get.in.bits := DontCare // Override unused fields
       asyncQueue.get.pins.write_clock := childClock
       asyncQueue.get.pins.write_reset := childReset
       asyncQueue.get.in.bits.data  := Cat(byte2word.ioBlock.o_data)
@@ -107,15 +121,15 @@ class DataRX(val params: DataRXParams) extends LazyModule()(Parameters.empty) {
       asyncQueue.get.module.reset := io.i_dsp_reset.get
       io.o_crc := asyncQueue.get.pins.out_ctrl(byte2word.ioBlock.o_crc.getWidth + word_detector.ioBlock.o_word_size.getWidth - 1)
       io.o_word_size := asyncQueue.get.pins.out_ctrl(word_detector.ioBlock.o_word_size.getWidth - 1, 0)
-      io.out.bits  := asyncQueue.get.out.bits.data
-      io.out.valid := asyncQueue.get.out.valid
-      asyncQueue.get.out.ready := io.out.ready
+      out.bits  := asyncQueue.get.out.bits
+      out.valid := asyncQueue.get.out.valid
+      asyncQueue.get.out.ready := out.ready
     }
     else {
       io.o_crc := byte2word.ioBlock.o_crc
       io.o_word_size := word_detector.ioBlock.o_word_size
-      io.out.bits    := Cat(byte2word.ioBlock.o_data)
-      io.out.valid   := byte2word.ioBlock.o_en
+      out.bits.data    := Cat(byte2word.ioBlock.o_data)
+      out.valid   := byte2word.ioBlock.o_en
     }
   }
 }

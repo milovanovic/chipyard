@@ -454,11 +454,10 @@ class WithNMITiedOff extends ComposeIOBinder({
   }
 })
 
-import lvdsphy._
 class WithDataRXPunchthrough extends OverrideIOBinder({
-  (system: CanHavePeripheryDataRXModuleImp) => system.pins.map({ p =>
-    val pins = IO(DataMirror.internal.chiselTypeClone[DataRXIO](p)).suggestName("datarx")
-    pins <> p
-    (Seq(pins), Nil)
+  (system: datarx.CanHavePeripheryDataRXModuleImp) => system.ios.map({ p =>
+    val ios = IO(DataMirror.internal.chiselTypeClone[datarx.DataRXBundle](p)).suggestName("ios")
+    ios <> p
+    (Seq(ios), Nil)
   }).getOrElse((Nil, Nil))
 })

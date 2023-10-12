@@ -12,9 +12,8 @@ import sifive.fpgashells.clocks.{ClockGroup, ClockSinkNode, PLLFactoryKey, Reset
 import sifive.blocks.devices.uart._
 import chipyard._
 import chipyard.harness._
-import chipyard.iobinders.HasIOBinders
 import devices.xilinx.xilinxnexysvideodeserializer.{NexysVideoDeserializerIO, XilinxNexysVideoDeserializer, XilinxNexysVideoDeserializerParams}
-import lvdsphy.DataRXKey
+import datarx.DataRXKey
 
 class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoShell {
   def dp = designParameters

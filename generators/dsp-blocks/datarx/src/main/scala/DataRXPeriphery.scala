@@ -3,10 +3,11 @@
 package datarx
 
 import chisel3.{Bundle, IO}
-import freechips.rocketchip.amba.axi4stream.{AXI4StreamBundle, AXI4StreamSlaveParameters, AXI4StreamToBundleBridge}
+import freechips.rocketchip.amba.axi4stream.AXI4StreamBundle
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.subsystem.BaseSubsystem
 import org.chipsalliance.cde.config.{Config, Field}
+
 
 /* DataRX Key */
 case object DataRXKey extends Field[Option[DataRXParams]](None)
@@ -27,11 +28,11 @@ trait CanHavePeripheryDataRX { this: BaseSubsystem =>
 // DOC include start: DataRX imp trait
 trait CanHavePeripheryDataRXModuleImp extends LazyModuleImp {
   val outer: CanHavePeripheryDataRX
-  val pins: Option[DataRXIO] = outer.datarx match {
+  val ios: Option[DataRXBundle] = outer.datarx match {
     case Some(datarx) => {
-      val pins = IO(datarx.ioBlock.cloneType)
-      pins <> datarx.ioBlock
-      Some(pins)
+      val ios = IO(datarx.ios.cloneType)
+      ios <> datarx.ios
+      Some(ios)
     }
     case None => None
   }

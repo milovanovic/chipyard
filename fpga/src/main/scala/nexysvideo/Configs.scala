@@ -2,7 +2,7 @@
 package chipyard.fpga.nexysvideo
 
 import freechips.rocketchip.diplomacy._
-import lvdsphy._
+import datarx._
 import org.chipsalliance.cde.config._
 import sifive.fpgashells.shell.DesignKey
 
