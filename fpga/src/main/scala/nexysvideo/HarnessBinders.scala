@@ -2,19 +2,16 @@
 package chipyard.fpga.nexysvideo
 
 import chisel3._
-
-import freechips.rocketchip.subsystem.{PeripheryBusKey}
-import freechips.rocketchip.tilelink.{TLBundle}
-import freechips.rocketchip.util.{HeterogeneousBag}
-import freechips.rocketchip.diplomacy.{LazyRawModuleImp}
-
-import sifive.blocks.devices.uart.{UARTParams}
-
+import freechips.rocketchip.subsystem.PeripheryBusKey
+import freechips.rocketchip.tilelink.TLBundle
+import freechips.rocketchip.util.HeterogeneousBag
+import freechips.rocketchip.diplomacy.LazyRawModuleImp
+import sifive.blocks.devices.uart.UARTParams
 import chipyard._
 import chipyard.harness._
-
 import testchipip._
 import chipyard.iobinders._
+import dspblocks.testchain._
 
 class WithNexysVideoUARTTSI(uartBaudRate: BigInt = 115200) extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort) => {
@@ -37,3 +34,29 @@ class WithNexysVideoDDRTL extends HarnessBinder({
     ddrClientBundle <> port.io
   }
 })
+
+
+class WithNexysVideoDSPChain extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: DSPChainPort) => {
+    val nexysvideoth = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[NexysVideoHarness]
+    port.io.data.i_clock := nexysvideoth.io_lvds.get.bundle.o_clock
+    port.io.data.i_reset := nexysvideoth.io_lvds.get.bundle.o_reset
+    port.io.data.i_frame := nexysvideoth.io_lvds.get.bundle.o_frame
+    port.io.data.i_valid := nexysvideoth.io_lvds.get.bundle.o_valid
+    (port.io.data.i_data).zip(nexysvideoth.io_lvds.get.bundle.o_data).foreach({ case (i, o) => i := o })
+
+    port.io.eth.clk125 := nexysvideoth.ethClock_125.get.in.head._1.clock
+    port.io.eth.clk125_90 := nexysvideoth.ethClock_125_90.get.in.head._1.clock
+    port.io.eth.clk5 := nexysvideoth.ethClock_5.get.in.head._1.clock
+    nexysvideoth.io_eth.get.bundle.phy_resetn := port.io.eth.phy_resetn
+    nexysvideoth.io_eth.get.bundle.rgmii_txd := port.io.eth.rgmii_txd
+    nexysvideoth.io_eth.get.bundle.rgmii_tx_ctl := port.io.eth.rgmii_tx_ctl
+    nexysvideoth.io_eth.get.bundle.rgmii_txc := port.io.eth.rgmii_txc
+    port.io.eth.rgmii_rxd := nexysvideoth.io_eth.get.bundle.rgmii_rxd
+    port.io.eth.rgmii_rx_ctl := nexysvideoth.io_eth.get.bundle.rgmii_rx_ctl
+    port.io.eth.rgmii_rxc := nexysvideoth.io_eth.get.bundle.rgmii_rxc
+    port.io.eth.mdio <> nexysvideoth.ethOverlay.get.io.mdc
+    nexysvideoth.io_eth.get.bundle.mdc := port.io.eth.mdc
+  }
+})
+

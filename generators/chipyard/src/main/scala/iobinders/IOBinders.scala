@@ -523,6 +523,6 @@ class WithChainPunchthrough extends OverrideIOBinder({
   (system: dspblocks.testchain.CanHavePeripheryTestChainModuleImp) => system.ios.map({ p =>
     val ios = IO(DataMirror.internal.chiselTypeClone[dspblocks.testchain.ChainBundle](p)).suggestName("chain_ios")
     ios <> p
-    (Seq(ios), Nil)
+    (Seq(DSPChainPort(ios)), Nil)
   }).getOrElse((Nil, Nil))
 })

@@ -1,19 +1,19 @@
 package chipyard.iobinders
 
 import chisel3._
-import chisel3.experimental.{Analog}
-import sifive.blocks.devices.uart.{UARTPortIO}
+import chisel3.experimental.Analog
+import sifive.blocks.devices.uart.UARTPortIO
 import sifive.blocks.devices.spi.{SPIFlashParams, SPIPortIO}
-import sifive.blocks.devices.i2c.{I2CPort}
-import sifive.blocks.devices.gpio.{GPIOPortIO}
+import sifive.blocks.devices.i2c.I2CPort
+import sifive.blocks.devices.gpio.GPIOPortIO
 import testchipip._
-import icenet.{NICIOvonly, NICConfig}
-import org.chipsalliance.cde.config.{Parameters}
+import icenet.{NICConfig, NICIOvonly}
+import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.amba.axi4.{AXI4Bundle, AXI4EdgeParameters}
-import freechips.rocketchip.subsystem.{MemoryPortParams, MasterPortParams, SlavePortParams}
-import freechips.rocketchip.devices.debug.{ClockedDMIIO}
-import freechips.rocketchip.util.{HeterogeneousBag}
-import freechips.rocketchip.tilelink.{TLBundle}
+import freechips.rocketchip.subsystem.{MasterPortParams, MemoryPortParams, SlavePortParams}
+import freechips.rocketchip.devices.debug.ClockedDMIIO
+import freechips.rocketchip.util.HeterogeneousBag
+import freechips.rocketchip.tilelink.TLBundle
 
 trait Port[T <: Data] {
   val io: T
@@ -91,4 +91,7 @@ case class JTAGResetPort   (val io: Reset)
 
 case class TLMemPort       (val io: HeterogeneousBag[TLBundle])
     extends Port[HeterogeneousBag[TLBundle]]
+
+case class DSPChainPort (val io: dspblocks.testchain.ChainBundle)
+  extends Port[dspblocks.testchain.ChainBundle]
 

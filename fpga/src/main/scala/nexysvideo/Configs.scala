@@ -10,11 +10,14 @@ import freechips.rocketchip.system._
 import freechips.rocketchip.tile._
 
 import sifive.blocks.devices.uart._
-import sifive.fpgashells.shell.{DesignKey}
+import sifive.fpgashells.shell.DesignKey
 
-import testchipip.{SerialTLKey}
 
-import chipyard.{BuildSystem}
+import testchipip.SerialTLKey
+
+import chipyard.BuildSystem
+
+import dspblocks.testchain._
 
 // don't use FPGAShell's DesignKey
 class WithNoDesignKey extends Config((site, here, up) => {
@@ -23,6 +26,7 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // DOC include start: WithNexysVideoTweaks and Rocket
 class WithNexysVideoTweaks extends Config(
+  new chipyard.iobinders.WithChainPunchthrough ++
   new WithNexysVideoUARTTSI ++
   new WithNexysVideoDDRTL ++
   new WithNoDesignKey ++
@@ -43,6 +47,8 @@ class WithNexysVideoTweaks extends Config(
 
 class RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
 // DOC include end: WithNexysVideoTweaks and Rocket
