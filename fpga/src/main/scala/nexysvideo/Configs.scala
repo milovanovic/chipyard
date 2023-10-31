@@ -55,6 +55,7 @@ class RocketNexysVideoConfig extends Config(
 
 // DOC include start: WithTinyNexysVideoTweaks and Rocket
 class WithTinyNexysVideoTweaks extends Config(
+  new chipyard.iobinders.WithChainPunchthrough ++
   new WithNexysVideoUARTTSI ++
   new WithNoDesignKey ++
   new sifive.fpgashells.shell.xilinx.WithNoNexysVideoShellDDR ++ // no DDR
@@ -73,6 +74,8 @@ class WithTinyNexysVideoTweaks extends Config(
 
 class TinyRocketNexysVideoConfig extends Config(
   new WithTinyNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.TinyRocketConfig)
   // DOC include end: WithTinyNexysVideoTweaks and Rocket
