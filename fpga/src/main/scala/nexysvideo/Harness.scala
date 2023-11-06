@@ -68,7 +68,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   }
 
   // Optional DDR
-  val ddrOverlay = if (p(NexysVideoShellDDR)) Some(dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode)).asInstanceOf[DDRNexysVideoPlacedOverlay]) else None
+  val ddrOverlay = if (p(NexysVideoShellDDR)) Some(dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode, beatBytes = dp(ExtTLMem).get.master.beatBytes)).asInstanceOf[DDRNexysVideoPlacedOverlay]) else None
   val ddrClient = if (p(NexysVideoShellDDR)) Some(TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
     name = "chip_ddr",
     sourceId = IdRange(0, 1 << dp(ExtTLMem).get.master.idBits)

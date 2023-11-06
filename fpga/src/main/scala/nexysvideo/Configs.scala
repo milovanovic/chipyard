@@ -24,6 +24,24 @@ class WithNoDesignKey extends Config((site, here, up) => {
   case DesignKey => (p: Parameters) => new SimpleLazyModule()(p)
 })
 
+class SmallRocketConfig extends Config(
+  new freechips.rocketchip.subsystem.WithNSmallCores(1) ++         // single rocket-core
+  new chipyard.config.AbstractConfig)
+
+class MedRocketConfig extends Config(
+  new freechips.rocketchip.subsystem.WithNMedCores(1) ++         // single rocket-core
+  new chipyard.config.AbstractConfig)
+
+class SmallRV32RocketConfig extends Config(
+  new freechips.rocketchip.subsystem.WithRV32 ++            // set RocketTiles to be 32-bit
+  new freechips.rocketchip.subsystem.WithNSmallCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+class MedRV32RocketConfig extends Config(
+  new freechips.rocketchip.subsystem.WithRV32 ++            // set RocketTiles to be 32-bit
+  new freechips.rocketchip.subsystem.WithNMedCores(1) ++
+  new chipyard.config.AbstractConfig)
+
 // DOC include start: WithNexysVideoTweaks and Rocket
 class WithNexysVideoTweaks extends Config(
   new chipyard.iobinders.WithChainPunchthrough ++
@@ -53,6 +71,41 @@ class RocketNexysVideoConfig extends Config(
   new chipyard.RocketConfig)
 // DOC include end: WithNexysVideoTweaks and Rocket
 
+class SmallRocketNexysVideoConfig extends Config(
+  new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new SmallRocketConfig)
+
+class MedRocketNexysVideoConfig extends Config(
+  new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new MedRocketConfig)
+
+class RV32RocketNexysVideoConfig extends Config(
+  new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new chipyard.RV32RocketConfig)
+
+class SmallRV32RocketNexysVideoConfig extends Config(
+  new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new SmallRV32RocketConfig)
+
+class MedRV32RocketNexysVideoConfig extends Config(
+  new WithNexysVideoTweaks ++
+  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithNexysVideoDSPChain ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new MedRV32RocketConfig)
+
 // DOC include start: WithTinyNexysVideoTweaks and Rocket
 class WithTinyNexysVideoTweaks extends Config(
   new chipyard.iobinders.WithChainPunchthrough ++
@@ -78,4 +131,4 @@ class TinyRocketNexysVideoConfig extends Config(
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.TinyRocketConfig)
-  // DOC include end: WithTinyNexysVideoTweaks and Rocket
+// DOC include end: WithTinyNexysVideoTweaks and Rocket
