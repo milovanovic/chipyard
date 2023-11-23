@@ -65,7 +65,10 @@ class WithNexysVideoTweaks extends Config(
 
 class RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
@@ -73,38 +76,55 @@ class RocketNexysVideoConfig extends Config(
 
 class SmallRocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new SmallRocketConfig)
 
 class MedRocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new MedRocketConfig)
 
 class RV32RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RV32RocketConfig)
 
 class SmallRV32RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+    new WithTestChain(new TestChainParams(
+      rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+      rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+    ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
-  new SmallRV32RocketConfig)
+  new SmallRV32RocketConfig
+)
 
 class MedRV32RocketNexysVideoConfig extends Config(
   new WithNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 4, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
-  new MedRV32RocketConfig)
+  new MedRV32RocketConfig
+)
 
 // DOC include start: WithTinyNexysVideoTweaks and Rocket
 class WithTinyNexysVideoTweaks extends Config(
@@ -127,7 +147,10 @@ class WithTinyNexysVideoTweaks extends Config(
 
 class TinyRocketNexysVideoConfig extends Config(
   new WithTinyNexysVideoTweaks ++
-  new WithTestChain((new TestChainParams(rangeFFTSize = 256, channels = 4)).params) ++
+  new WithTestChain(new TestChainParams(
+    rxNum = 4, txNum = 2, angleFFTSizeAfterPadding = 32,
+    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+  ).params) ++
   new WithNexysVideoDSPChain ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.TinyRocketConfig)
