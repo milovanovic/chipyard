@@ -38,7 +38,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   val io_uart_bb = BundleBridgeSource(() => new UARTPortIO(dp(PeripheryUARTKey).headOption.getOrElse(UARTParams(0))))
   val uartOverlay = dp(UARTOverlayKey).head.place(UARTDesignInput(io_uart_bb))
 
-  val io_lvds = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoDeserializerIO(4))) else None
+  val io_lvds = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoDeserializerIO(channels = dp(DSPChainKey).get.dataChannels, chips = dp(DSPChainKey).get.dataChips))) else None
   val lvdsOverlay = if (dp(DSPChainKey).isDefined) Some(dp(LVDSOverlayKey).head.place(LVDSDesignInput(io_lvds.get)).asInstanceOf[LVDSNexysVideoPlacedOverlay]) else None
 
   // Ethernet
@@ -120,8 +120,8 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
     
     if (dp(DSPChainKey).isDefined) {
       io_lvds.get.bundle <> lvdsOverlay.get.deser.module.io
-      other_leds.head := lvdsOverlay.get.deser.module.io.o_valid === 1.U
-      io_lvds.get.bundle.i_rst := pllReset
+//      other_leds.head := lvdsOverlay.get.deser.module.io.o_valid === 1.U
+      io_lvds.get.bundle.lvds.foreach(lvds => lvds.i_rst := pllReset)
       ethPLLClock.get.out.head._1.clock := clk_100mhz
       harnessETHPLL.get.plls.foreach(_._1.getReset.get := pllReset)
     }

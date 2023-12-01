@@ -39,11 +39,13 @@ class WithNexysVideoDDRTL extends HarnessBinder({
 class WithNexysVideoDSPChain extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: DSPChainPort) => {
     val nexysvideoth = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[NexysVideoHarness]
-    port.io.data.i_clock := nexysvideoth.io_lvds.get.bundle.o_clock
-    port.io.data.i_reset := nexysvideoth.io_lvds.get.bundle.o_reset
-    port.io.data.i_frame := nexysvideoth.io_lvds.get.bundle.o_frame
-    port.io.data.i_valid := nexysvideoth.io_lvds.get.bundle.o_valid
-    (port.io.data.i_data).zip(nexysvideoth.io_lvds.get.bundle.o_data).foreach({ case (i, o) => i := o })
+    port.io.data.pins.zip(nexysvideoth.io_lvds.get.bundle.lvds).foreach{ case (data, lvds) =>
+      data.i_clock := lvds.o_clock
+      data.i_reset := lvds.o_reset
+      data.i_frame := lvds.o_frame
+      data.i_valid := lvds.o_valid
+      (data.i_data).zip(lvds.o_data).foreach({ case (i, o) => i := o })
+    }
 
     port.io.eth.clk125 := nexysvideoth.ethClock_125.get.in.head._1.clock
     port.io.eth.clk125_90 := nexysvideoth.ethClock_125_90.get.in.head._1.clock
