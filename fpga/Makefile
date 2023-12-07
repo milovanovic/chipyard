@@ -173,6 +173,11 @@ debug-bitstream: $(build_dir)/obj/post_synth.dcp
 			$(build_dir)/debug_obj \
 			$(fpga_common_script_dir)
 
+everything:
+	make verilog
+	python3 ./scripts/insertLogic.py
+	make bitstream
+	
 #########################################################################################
 # general cleanup rules
 #########################################################################################
