@@ -176,6 +176,7 @@ debug-bitstream: $(build_dir)/obj/post_synth.dcp
 everything:
 	make verilog
 	python3 ./scripts/insertLogic.py
+	python3 ./scripts/fixLast.py
 	make bitstream
 	
 #########################################################################################
