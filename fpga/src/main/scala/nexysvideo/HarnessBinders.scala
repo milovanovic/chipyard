@@ -57,7 +57,7 @@ class WithNexysVideoDSPChain extends HarnessBinder({
     port.io.eth.rgmii_rxd := nexysvideoth.io_eth.get.bundle.rgmii_rxd
     port.io.eth.rgmii_rx_ctl := nexysvideoth.io_eth.get.bundle.rgmii_rx_ctl
     port.io.eth.rgmii_rxc := nexysvideoth.io_eth.get.bundle.rgmii_rxc
-    port.io.eth.mdio <> nexysvideoth.ethOverlay.get.io.mdc
+    port.io.eth.mdio <> nexysvideoth.ethOverlay.get.io.mdio
     nexysvideoth.io_eth.get.bundle.mdc := port.io.eth.mdc
   }
 })
