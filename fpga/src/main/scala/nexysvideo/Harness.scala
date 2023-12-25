@@ -40,8 +40,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   val lvdsOverlay = if (dp(DSPChainKey).isDefined) Some(dp(LVDSOverlayKey).head.place(LVDSDesignInput(io_lvds.get)).asInstanceOf[LVDSNexysVideoPlacedOverlay]) else None
 
   // toplevel
-  val pins = if (dp(TopLevelKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoTopLevelIO)) else None
-  val pinsOverlay = if (dp(TopLevelKey).isDefined) Some(dp(TopLevelOverlayKey).head.place(TopLevelDesignInput(pins.get)).asInstanceOf[TopLevelNexysVideoPlacedOverlay]) else None
+  val pinsOverlay = if (dp(TopLevelKey).isDefined) Some(dp(TopLevelOverlayKey).head.place(TopLevelDesignInput()).asInstanceOf[TopLevelNexysVideoPlacedOverlay]) else None
   // Ethernet
   val io_eth = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoETHIO)) else None
   val ethOverlay = if (dp(DSPChainKey).isDefined) Some(dp(ETHOverlayKey).head.place(ETHDesignInput(io_eth.get)).asInstanceOf[ETHNexysVideoPlacedOverlay]) else None
