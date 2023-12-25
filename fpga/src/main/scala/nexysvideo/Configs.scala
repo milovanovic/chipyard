@@ -18,6 +18,7 @@ import testchipip.SerialTLKey
 import chipyard.BuildSystem
 
 import dspblocks.testchain._
+import dspblocks.toplevel._
 
 // don't use FPGAShell's DesignKey
 class WithNoDesignKey extends Config((site, here, up) => {
@@ -147,11 +148,40 @@ class WithTinyNexysVideoTweaks extends Config(
 
 class TinyRocketNexysVideoConfig extends Config(
   new WithTinyNexysVideoTweaks ++
-  new WithTestChain(new TestChainParams(
-    rxNum = 8, txNum = 4, angleFFTSizeAfterPadding = 32,
-    rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 8, dopplerNumInAngleBranch = 4
-  ).params) ++
-  new WithNexysVideoDSPChain ++
-  new chipyard.config.WithBroadcastManager ++ // no l2
-  new chipyard.TinyRocketConfig)
+    new WithTestChain(new TestChainParams(
+      lvdsChannels = 4, lvdsChips = 1,
+      rxNum = 4, txNum = 2, angleFFTSizeAfterPadding = 32,
+      rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 4, dopplerNumInAngleBranch = 4
+    ).params) ++
+    new WithNexysVideoDSPChain ++
+    new chipyard.config.WithBroadcastManager ++ // no l2
+    new chipyard.TinyRocketConfig)
 // DOC include end: WithTinyNexysVideoTweaks and Rocket
+
+class WithTopTweaks extends Config(
+    new chipyard.iobinders.WithTopLevelPunchthrough ++
+    new WithNexysVideoUARTTSI ++
+    new WithNoDesignKey ++
+    new sifive.fpgashells.shell.xilinx.WithNoNexysVideoShellDDR ++ // no DDR
+    new testchipip.WithUARTTSIClient ++
+    new chipyard.harness.WithSerialTLTiedOff ++
+    new chipyard.harness.WithHarnessBinderClockFreqMHz(50) ++
+    new chipyard.config.WithMemoryBusFrequency(50.0) ++
+    new chipyard.config.WithFrontBusFrequency(50.0) ++
+    new chipyard.config.WithSystemBusFrequency(50.0) ++
+    new chipyard.config.WithPeripheryBusFrequency(50.0) ++
+    new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
+    new chipyard.clocking.WithPassthroughClockGenerator ++
+    new chipyard.config.WithNoDebug ++ // no jtag
+    new chipyard.config.WithNoUART ++ // use UART for the UART-TSI thing instad
+    new freechips.rocketchip.subsystem.WithoutTLMonitors)
+
+
+// DOC include start: TopConfig and Rocket
+class TopConfig extends Config(
+  new WithTopTweaks ++
+    new WithTopLevel(new TopLevelParameters(AddressSet(0x20000000,0x5FFFFFFF),4,2)) ++
+    new WithNexysVideoTopLevel ++
+    new chipyard.config.WithBroadcastManager ++ // no l2
+    new chipyard.TinyRocketConfig)
+// DOC include end: TopConfig and Rocket

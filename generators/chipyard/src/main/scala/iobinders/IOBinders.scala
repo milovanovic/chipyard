@@ -526,3 +526,11 @@ class WithChainPunchthrough extends OverrideIOBinder({
     (Seq(DSPChainPort(ios)), Nil)
   }).getOrElse((Nil, Nil))
 })
+
+class WithTopLevelPunchthrough extends OverrideIOBinder({
+  (system: dspblocks.toplevel.CanHavePeripheryTopLevelModuleImp) => system.iot.map({ p =>
+    val iot = IO(DataMirror.internal.chiselTypeClone[dspblocks.toplevel.TopLevelIO](p)).suggestName("top_ios")
+    iot <> p
+    (Seq(TopLevelPort(iot)), Nil)
+  }).getOrElse((Nil, Nil))
+})

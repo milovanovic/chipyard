@@ -36,6 +36,7 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with fftgenerator.CanHavePeripheryFFT // Enables optionally having an MMIO-based FFT block
   with constellation.soc.CanHaveGlobalNoC // Support instantiating a global NoC interconnect
   with dspblocks.testchain.CanHavePeripheryTestChain // Enables optionally having an Chain block
+  with dspblocks.toplevel.CanHavePeripheryTopLevel // Enables optionally having an Chain block
 {
   override lazy val module = new DigitalTopModule(this)
 }
@@ -50,5 +51,6 @@ class DigitalTopModule[+L <: DigitalTop](l: L) extends ChipyardSystemModule(l)
   with sifive.blocks.devices.spi.HasPeripherySPIModuleImp
   with chipyard.example.CanHavePeripheryGCDModuleImp
   with dspblocks.testchain.CanHavePeripheryTestChainModuleImp // Enables optionally having an Chain block
+  with dspblocks.toplevel.CanHavePeripheryTopLevelModuleImp // Enables optionally having an Chain block
   with freechips.rocketchip.util.DontTouch
 // DOC include end: DigitalTop

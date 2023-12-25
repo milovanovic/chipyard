@@ -62,3 +62,66 @@ class WithNexysVideoDSPChain extends HarnessBinder({
   }
 })
 
+class WithNexysVideoTopLevel extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: TopLevelPort) => {
+    val nexys = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[NexysVideoHarness]
+    // Clock and reset
+    port.io.clk_100MHZ := nexys.clockOverlay.overlayOutput.node.out.head._1.clock
+    // Ethernet
+    nexys.pins.get.bundle.phy_resetn := port.io.phy_resetn
+    nexys.pins.get.bundle.rgmii_txd := port.io.rgmii_txd
+    nexys.pins.get.bundle.rgmii_tx_ctl := port.io.rgmii_tx_ctl
+    nexys.pins.get.bundle.rgmii_txc := port.io.rgmii_txc
+    port.io.rgmii_rxd := nexys.pins.get.bundle.rgmii_rxd
+    port.io.rgmii_rx_ctl := nexys.pins.get.bundle.rgmii_rx_ctl
+    port.io.rgmii_rxc := nexys.pins.get.bundle.rgmii_rxc
+    port.io.mdio <> nexys.pinsOverlay.get.io.mdio
+    nexys.pins.get.bundle.mdc := port.io.mdc
+    // LVDS 1
+    port.io.io_2_lvds_clk_n := nexys.pins.get.bundle.io_2_lvds_clk_n
+    port.io.io_2_lvds_clk_p := nexys.pins.get.bundle.io_2_lvds_clk_p
+    port.io.io_2_lvds_data_p := nexys.pins.get.bundle.io_2_lvds_data_p
+    port.io.io_2_lvds_data_n := nexys.pins.get.bundle.io_2_lvds_data_n
+    port.io.io_2_lvds_valid_n := nexys.pins.get.bundle.io_2_lvds_valid_n
+    port.io.io_2_lvds_valid_p := nexys.pins.get.bundle.io_2_lvds_valid_p
+    port.io.io_2_lvds_frame_clk_n := nexys.pins.get.bundle.io_2_lvds_frame_clk_n
+    port.io.io_2_lvds_frame_clk_p := nexys.pins.get.bundle.io_2_lvds_frame_clk_p
+    // LVDS 2
+    port.io.io_3_lvds_clk_n := nexys.pins.get.bundle.io_3_lvds_clk_n
+    port.io.io_3_lvds_clk_p := nexys.pins.get.bundle.io_3_lvds_clk_p
+    port.io.io_3_lvds_data_p := nexys.pins.get.bundle.io_3_lvds_data_p
+    port.io.io_3_lvds_data_n := nexys.pins.get.bundle.io_3_lvds_data_n
+    port.io.io_3_lvds_valid_n := nexys.pins.get.bundle.io_3_lvds_valid_n
+    port.io.io_3_lvds_valid_p := nexys.pins.get.bundle.io_3_lvds_valid_p
+    port.io.io_3_lvds_frame_clk_n := nexys.pins.get.bundle.io_3_lvds_frame_clk_n
+    port.io.io_3_lvds_frame_clk_p := nexys.pins.get.bundle.io_3_lvds_frame_clk_p
+    // CTRL 1
+    port.io.awr_host_intr1_fmc := nexys.pins.get.bundle.awr_host_intr1_fmc
+    port.io.awr_host_intr2_fmc := nexys.pins.get.bundle.awr_host_intr2_fmc
+    port.io.awr_host_intr3_fmc := nexys.pins.get.bundle.awr_host_intr3_fmc
+    port.io.awr_host_intr4_fmc := nexys.pins.get.bundle.awr_host_intr4_fmc
+    nexys.pins.get.bundle.awr_spi_cs1_fmc := port.io.awr_spi_cs1_fmc
+    nexys.pins.get.bundle.awr_spi_cs2_fmc := port.io.awr_spi_cs2_fmc
+    nexys.pins.get.bundle.awr_spi_cs3_fmc := port.io.awr_spi_cs3_fmc
+    nexys.pins.get.bundle.awr_spi_cs4_fmc := port.io.awr_spi_cs4_fmc
+    port.io.awr_spi_miso_fmc := nexys.pins.get.bundle.awr_spi_miso_fmc
+    nexys.pins.get.bundle.awr_spi_mosi_fmc := port.io.awr_spi_mosi_fmc
+    nexys.pins.get.bundle.awr_spi_clk_fmc := port.io.awr_spi_clk_fmc
+    nexys.pins.get.bundle.awr_nrst1_pmod := port.io.awr_nrst1_pmod
+    nexys.pins.get.bundle.awr_nrst2_fmc := port.io.awr_nrst2_fmc
+    // CTRL 2
+    nexys.pins.get.bundle.awr_host_intr1 := port.io.awr_host_intr1
+    nexys.pins.get.bundle.awr_host_intr2 := port.io.awr_host_intr2
+    nexys.pins.get.bundle.awr_host_intr3 := port.io.awr_host_intr3
+    nexys.pins.get.bundle.awr_host_intr4 := port.io.awr_host_intr4
+    port.io.awr_spi_cs1 := nexys.pins.get.bundle.awr_spi_cs1
+    port.io.awr_spi_cs2 := nexys.pins.get.bundle.awr_spi_cs2
+    port.io.awr_spi_cs3 := nexys.pins.get.bundle.awr_spi_cs3
+    port.io.awr_spi_cs4 := nexys.pins.get.bundle.awr_spi_cs4
+    nexys.pins.get.bundle.awr_spi_miso := port.io.awr_spi_miso
+    port.io.awr_spi_mosi := nexys.pins.get.bundle.awr_spi_mosi
+    port.io.awr_spi_clk := nexys.pins.get.bundle.awr_spi_clk
+    port.io.awr_nrst1 := nexys.pins.get.bundle.awr_nrst1
+    port.io.awr_nrst2 := nexys.pins.get.bundle.awr_nrst2
+  }
+})

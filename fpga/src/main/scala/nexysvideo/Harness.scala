@@ -7,17 +7,15 @@ import freechips.rocketchip.diplomacy._
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.subsystem.SystemBusKey
-
 import sifive.fpgashells.shell.xilinx._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.clocks.{ClockGroup, ClockSinkNode, ClockSourceNode, PLLFactory, PLLFactoryKey, PLLInClockParameters, PLLOutClockParameters, PLLParameters, ResetWrangler}
-
 import sifive.blocks.devices.uart._
-
 import chipyard._
 import chipyard.harness._
 import devices.xilinx.xilinxnexysvideodeserializer.{NexysVideoDeserializerIO, XilinxNexysVideoDeserializer, XilinxNexysVideoDeserializerParams}
 import dspblocks.testchain.DSPChainKey
+import dspblocks.toplevel.TopLevelKey
 import sifive.fpgashells.ip.xilinx.Series7MMCM
 
 class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoShell {
@@ -41,6 +39,9 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   val io_lvds = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoDeserializerIO(channels = dp(DSPChainKey).get.dataChannels, chips = dp(DSPChainKey).get.dataChips))) else None
   val lvdsOverlay = if (dp(DSPChainKey).isDefined) Some(dp(LVDSOverlayKey).head.place(LVDSDesignInput(io_lvds.get)).asInstanceOf[LVDSNexysVideoPlacedOverlay]) else None
 
+  // toplevel
+  val pins = if (dp(TopLevelKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoTopLevelIO)) else None
+  val pinsOverlay = if (dp(TopLevelKey).isDefined) Some(dp(TopLevelOverlayKey).head.place(TopLevelDesignInput(pins.get)).asInstanceOf[TopLevelNexysVideoPlacedOverlay]) else None
   // Ethernet
   val io_eth = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoETHIO)) else None
   val ethOverlay = if (dp(DSPChainKey).isDefined) Some(dp(ETHOverlayKey).head.place(ETHDesignInput(io_eth.get)).asInstanceOf[ETHNexysVideoPlacedOverlay]) else None

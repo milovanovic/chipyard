@@ -95,3 +95,6 @@ case class TLMemPort       (val io: HeterogeneousBag[TLBundle])
 case class DSPChainPort (val io: dspblocks.testchain.ChainBundle)
   extends Port[dspblocks.testchain.ChainBundle]
 
+case class TopLevelPort (val io: dspblocks.toplevel.TopLevelIO)
+  extends Port[dspblocks.toplevel.TopLevelIO]
+
