@@ -180,7 +180,7 @@ class WithTopTweaks extends Config(
 // DOC include start: TopConfig and Rocket
 class TopConfig extends Config(
   new WithTopTweaks ++
-    new WithTopLevel(new TopLevelParameters(AddressSet(0x20000000,0x5FFFFFFF),4,2)) ++
+    new WithTopLevel(new TopLevelParameters(AddressSet(0x20000000,0x4FFFFFFF),4,2)) ++
     new WithNexysVideoTopLevel ++
     new chipyard.config.WithBroadcastManager ++ // no l2
     new chipyard.TinyRocketConfig)

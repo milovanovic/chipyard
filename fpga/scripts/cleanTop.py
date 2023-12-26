@@ -25,6 +25,6 @@ for mod in module:
     for line in fileinput.FileInput("FFT2CFAR2RDandRAChainsWithGbemac.v", inplace=True):
         if line != None and mod in line:
             line = line.replace(mod, "C_" + mod)
-        if line != None and "ioMem_" in line:
-            line = line.replace("ioMem_", "auto_bus_in_")
+        # if line != None and "ioMem_" in line:
+        #     line = line.replace("ioMem_", "auto_bus_in_")
         print(line, end="")
