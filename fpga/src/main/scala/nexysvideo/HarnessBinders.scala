@@ -2,16 +2,12 @@
 package chipyard.fpga.nexysvideo
 
 import chisel3._
-import freechips.rocketchip.subsystem.PeripheryBusKey
-import freechips.rocketchip.tilelink.TLBundle
 import freechips.rocketchip.util.HeterogeneousBag
 import freechips.rocketchip.diplomacy.LazyRawModuleImp
-import sifive.blocks.devices.uart.UARTParams
-import chipyard._
+
 import chipyard.harness._
-import testchipip._
 import chipyard.iobinders._
-import dspblocks.testchain._
+
 
 class WithNexysVideoUARTTSI(uartBaudRate: BigInt = 115200) extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort) => {
@@ -37,29 +33,28 @@ class WithNexysVideoDDRTL extends HarnessBinder({
 
 
 class WithNexysVideoDSPChain extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: DSPChainPort) => {
+  case (th: HasHarnessInstantiators, port: DSPChainPort) =>
     val nexysvideoth = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[NexysVideoHarness]
     port.io.data.pins.zip(nexysvideoth.io_lvds.get.bundle.lvds).foreach{ case (data, lvds) =>
       data.i_clock := lvds.o_clock
       data.i_reset := lvds.o_reset
       data.i_frame := lvds.o_frame
       data.i_valid := lvds.o_valid
-      (data.i_data).zip(lvds.o_data).foreach({ case (i, o) => i := o })
+      data.i_data.zip(lvds.o_data).foreach({ case (i, o) => i := o })
     }
 
     port.io.eth.clk125 := nexysvideoth.ethClock_125.get.in.head._1.clock
     port.io.eth.clk125_90 := nexysvideoth.ethClock_125_90.get.in.head._1.clock
     port.io.eth.clk5 := nexysvideoth.ethClock_5.get.in.head._1.clock
-    nexysvideoth.io_eth.get.bundle.phy_resetn := port.io.eth.phy_resetn
-    nexysvideoth.io_eth.get.bundle.rgmii_txd := port.io.eth.rgmii_txd
-    nexysvideoth.io_eth.get.bundle.rgmii_tx_ctl := port.io.eth.rgmii_tx_ctl
-    nexysvideoth.io_eth.get.bundle.rgmii_txc := port.io.eth.rgmii_txc
-    port.io.eth.rgmii_rxd := nexysvideoth.io_eth.get.bundle.rgmii_rxd
-    port.io.eth.rgmii_rx_ctl := nexysvideoth.io_eth.get.bundle.rgmii_rx_ctl
-    port.io.eth.rgmii_rxc := nexysvideoth.io_eth.get.bundle.rgmii_rxc
+    nexysvideoth.ethOverlay.get.io.phy_resetn := port.io.eth.phy_resetn
+    nexysvideoth.ethOverlay.get.io.rgmii_txd.zipWithIndex.foreach({ case (m, i) => m := port.io.eth.rgmii_txd(i) })
+    nexysvideoth.ethOverlay.get.io.rgmii_tx_ctl := port.io.eth.rgmii_tx_ctl
+    nexysvideoth.ethOverlay.get.io.rgmii_txc := port.io.eth.rgmii_txc
+    port.io.eth.rgmii_rxd := nexysvideoth.ethOverlay.get.io.rgmii_rxd.do_asUInt
+    port.io.eth.rgmii_rx_ctl := nexysvideoth.ethOverlay.get.io.rgmii_rx_ctl
+    port.io.eth.rgmii_rxc := nexysvideoth.ethOverlay.get.io.rgmii_rxc
     port.io.eth.mdio <> nexysvideoth.ethOverlay.get.io.mdio
-    nexysvideoth.io_eth.get.bundle.mdc := port.io.eth.mdc
-  }
+    nexysvideoth.ethOverlay.get.io.mdc := port.io.eth.mdc
 })
 
 class WithNexysVideoTopLevel extends HarnessBinder({

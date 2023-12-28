@@ -42,8 +42,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   // toplevel
   val pinsOverlay = if (dp(TopLevelKey).isDefined) Some(dp(TopLevelOverlayKey).head.place(TopLevelDesignInput()).asInstanceOf[TopLevelNexysVideoPlacedOverlay]) else None
   // Ethernet
-  val io_eth = if (dp(DSPChainKey).isDefined) Some(BundleBridgeSource(() => new NexysVideoETHIO)) else None
-  val ethOverlay = if (dp(DSPChainKey).isDefined) Some(dp(ETHOverlayKey).head.place(ETHDesignInput(io_eth.get)).asInstanceOf[ETHNexysVideoPlacedOverlay]) else None
+  val ethOverlay = if (dp(DSPChainKey).isDefined) Some(dp(ETHOverlayKey).head.place(ETHDesignInput()).asInstanceOf[ETHNexysVideoPlacedOverlay]) else None
   val harnessETHPLL = if (dp(DSPChainKey).isDefined) Some(new PLLFactory(this, 7, p => Module(new Series7MMCM(PLLParameters(
     name = "eth_pll",
     input = PLLInClockParameters(freqMHz = 100.0),
@@ -120,7 +119,6 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
     
     if (dp(DSPChainKey).isDefined) {
       io_lvds.get.bundle <> lvdsOverlay.get.deser.module.io
-//      other_leds.head := lvdsOverlay.get.deser.module.io.o_valid === 1.U
       io_lvds.get.bundle.lvds.foreach(lvds => lvds.i_rst := pllReset)
       ethPLLClock.get.out.head._1.clock := clk_100mhz
       harnessETHPLL.get.plls.foreach(_._1.getReset.get := pllReset)
