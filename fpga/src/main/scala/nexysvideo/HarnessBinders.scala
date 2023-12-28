@@ -64,10 +64,10 @@ class WithNexysVideoTopLevel extends HarnessBinder({
     port.io.clk_100MHZ := nexys.clockOverlay.overlayOutput.node.out.head._1.clock
     // Ethernet
     nexys.pinsOverlay.get.io.phy_resetn := port.io.phy_resetn
-    nexys.pinsOverlay.get.io.rgmii_txd := port.io.rgmii_txd
+    nexys.pinsOverlay.get.io.rgmii_txd.zipWithIndex.foreach({ case (m, i) => m := port.io.rgmii_txd(i) })
     nexys.pinsOverlay.get.io.rgmii_tx_ctl := port.io.rgmii_tx_ctl
     nexys.pinsOverlay.get.io.rgmii_txc := port.io.rgmii_txc
-    port.io.rgmii_rxd := nexys.pinsOverlay.get.io.rgmii_rxd
+    port.io.rgmii_rxd := nexys.pinsOverlay.get.io.rgmii_rxd.do_asUInt
     port.io.rgmii_rx_ctl := nexys.pinsOverlay.get.io.rgmii_rx_ctl
     port.io.rgmii_rxc := nexys.pinsOverlay.get.io.rgmii_rxc
     port.io.mdio <> nexys.pinsOverlay.get.io.mdio
@@ -75,8 +75,8 @@ class WithNexysVideoTopLevel extends HarnessBinder({
     // LVDS 1
     port.io.io_2_lvds_clk_n := nexys.pinsOverlay.get.io.io_2_lvds_clk_n
     port.io.io_2_lvds_clk_p := nexys.pinsOverlay.get.io.io_2_lvds_clk_p
-    port.io.io_2_lvds_data_p := nexys.pinsOverlay.get.io.io_2_lvds_data_p
-    port.io.io_2_lvds_data_n := nexys.pinsOverlay.get.io.io_2_lvds_data_n
+    port.io.io_2_lvds_data_p := nexys.pinsOverlay.get.io.io_2_lvds_data_p.do_asUInt
+    port.io.io_2_lvds_data_n := nexys.pinsOverlay.get.io.io_2_lvds_data_n.do_asUInt
     port.io.io_2_lvds_valid_n := nexys.pinsOverlay.get.io.io_2_lvds_valid_n
     port.io.io_2_lvds_valid_p := nexys.pinsOverlay.get.io.io_2_lvds_valid_p
     port.io.io_2_lvds_frame_clk_n := nexys.pinsOverlay.get.io.io_2_lvds_frame_clk_n
@@ -84,8 +84,8 @@ class WithNexysVideoTopLevel extends HarnessBinder({
     // LVDS 2
     port.io.io_3_lvds_clk_n := nexys.pinsOverlay.get.io.io_3_lvds_clk_n
     port.io.io_3_lvds_clk_p := nexys.pinsOverlay.get.io.io_3_lvds_clk_p
-    port.io.io_3_lvds_data_p := nexys.pinsOverlay.get.io.io_3_lvds_data_p
-    port.io.io_3_lvds_data_n := nexys.pinsOverlay.get.io.io_3_lvds_data_n
+    port.io.io_3_lvds_data_p := nexys.pinsOverlay.get.io.io_3_lvds_data_p.do_asUInt
+    port.io.io_3_lvds_data_n := nexys.pinsOverlay.get.io.io_3_lvds_data_n.do_asUInt
     port.io.io_3_lvds_valid_n := nexys.pinsOverlay.get.io.io_3_lvds_valid_n
     port.io.io_3_lvds_valid_p := nexys.pinsOverlay.get.io.io_3_lvds_valid_p
     port.io.io_3_lvds_frame_clk_n := nexys.pinsOverlay.get.io.io_3_lvds_frame_clk_n
