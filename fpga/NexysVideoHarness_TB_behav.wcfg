@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="926.618 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,014.677 ns"></ZoomEndTime>
-      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+      <ZoomStartTime time="3,828,184.934 ns"></ZoomStartTime>
+      <ZoomEndTime time="3,828,481.435 ns"></ZoomEndTime>
+      <Cursor1Time time="3,828,314.934 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="386"></NameColumnWidth>
-      <ValueColumnWidth column_width="175"></ValueColumnWidth>
+      <NameColumnWidth column_width="367"></NameColumnWidth>
+      <ValueColumnWidth column_width="165"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="15" />
+   <WVObjectSize size="18" />
    <wvobject type="group" fp_name="group1905">
       <obj_property name="label">DataRX_0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -924,6 +924,555 @@
          <obj_property name="ObjectShortName">auto_stream_out_0_bits_data[31:0]</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/zeroPadderRange/auto_stream_out_0_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_0_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_bits_last</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group2914">
+      <obj_property name="label">Gbemac</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/clock">
+         <obj_property name="ElementShortName">clock</obj_property>
+         <obj_property name="ObjectShortName">clock</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/reset">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/auto_stream_in_valid">
+         <obj_property name="ElementShortName">auto_stream_in_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/auto_stream_in_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/auto_stream_in_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/gbemac/auto_stream_in_ready">
+         <obj_property name="ElementShortName">auto_stream_in_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_ready</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group2979">
+      <obj_property name="label">RangeFFT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_7_ready">
+         <obj_property name="ElementShortName">auto_stream_in_7_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_7_valid">
+         <obj_property name="ElementShortName">auto_stream_in_7_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_7_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_7_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_7_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_7_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_6_ready">
+         <obj_property name="ElementShortName">auto_stream_in_6_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_6_valid">
+         <obj_property name="ElementShortName">auto_stream_in_6_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_6_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_6_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_6_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_6_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_5_ready">
+         <obj_property name="ElementShortName">auto_stream_in_5_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_5_valid">
+         <obj_property name="ElementShortName">auto_stream_in_5_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_5_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_5_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_5_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_5_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_4_ready">
+         <obj_property name="ElementShortName">auto_stream_in_4_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_4_valid">
+         <obj_property name="ElementShortName">auto_stream_in_4_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_4_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_4_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_4_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_4_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_3_ready">
+         <obj_property name="ElementShortName">auto_stream_in_3_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_3_valid">
+         <obj_property name="ElementShortName">auto_stream_in_3_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_3_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_3_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_3_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_3_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_2_ready">
+         <obj_property name="ElementShortName">auto_stream_in_2_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_2_valid">
+         <obj_property name="ElementShortName">auto_stream_in_2_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_2_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_2_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_2_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_2_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_1_ready">
+         <obj_property name="ElementShortName">auto_stream_in_1_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_1_valid">
+         <obj_property name="ElementShortName">auto_stream_in_1_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_1_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_1_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_1_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_1_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_0_ready">
+         <obj_property name="ElementShortName">auto_stream_in_0_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_0_valid">
+         <obj_property name="ElementShortName">auto_stream_in_0_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_0_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_0_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_in_0_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_0_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_7_ready">
+         <obj_property name="ElementShortName">auto_stream_out_7_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_7_valid">
+         <obj_property name="ElementShortName">auto_stream_out_7_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_7_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_7_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_7_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_7_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_6_ready">
+         <obj_property name="ElementShortName">auto_stream_out_6_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_6_valid">
+         <obj_property name="ElementShortName">auto_stream_out_6_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_6_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_6_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_6_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_6_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_5_ready">
+         <obj_property name="ElementShortName">auto_stream_out_5_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_5_valid">
+         <obj_property name="ElementShortName">auto_stream_out_5_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_5_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_5_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_5_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_5_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_4_valid">
+         <obj_property name="ElementShortName">auto_stream_out_4_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_valid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_4_ready">
+         <obj_property name="ElementShortName">auto_stream_out_4_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_ready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_4_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_4_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_4_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_4_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_3_ready">
+         <obj_property name="ElementShortName">auto_stream_out_3_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_3_valid">
+         <obj_property name="ElementShortName">auto_stream_out_3_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_3_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_3_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_3_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_3_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_2_ready">
+         <obj_property name="ElementShortName">auto_stream_out_2_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_2_valid">
+         <obj_property name="ElementShortName">auto_stream_out_2_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_2_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_2_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_2_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_2_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_1_ready">
+         <obj_property name="ElementShortName">auto_stream_out_1_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_1_valid">
+         <obj_property name="ElementShortName">auto_stream_out_1_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_1_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_1_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_1_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_1_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_0_ready">
+         <obj_property name="ElementShortName">auto_stream_out_0_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_0_valid">
+         <obj_property name="ElementShortName">auto_stream_out_0_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_0_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_0_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/rangeFFT/auto_stream_out_0_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_0_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_bits_last</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group3044">
+      <obj_property name="label">DopplerFFT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_7_valid">
+         <obj_property name="ElementShortName">auto_stream_in_7_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_valid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_7_ready">
+         <obj_property name="ElementShortName">auto_stream_in_7_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_ready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_7_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_7_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_7_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_7_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_7_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_6_ready">
+         <obj_property name="ElementShortName">auto_stream_in_6_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_6_valid">
+         <obj_property name="ElementShortName">auto_stream_in_6_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_6_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_6_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_6_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_6_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_6_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_5_ready">
+         <obj_property name="ElementShortName">auto_stream_in_5_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_5_valid">
+         <obj_property name="ElementShortName">auto_stream_in_5_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_5_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_5_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_5_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_5_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_5_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_4_ready">
+         <obj_property name="ElementShortName">auto_stream_in_4_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_4_valid">
+         <obj_property name="ElementShortName">auto_stream_in_4_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_4_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_4_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_4_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_4_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_4_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_3_ready">
+         <obj_property name="ElementShortName">auto_stream_in_3_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_3_valid">
+         <obj_property name="ElementShortName">auto_stream_in_3_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_3_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_3_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_3_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_3_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_3_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_2_ready">
+         <obj_property name="ElementShortName">auto_stream_in_2_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_2_valid">
+         <obj_property name="ElementShortName">auto_stream_in_2_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_2_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_2_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_2_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_2_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_2_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_1_ready">
+         <obj_property name="ElementShortName">auto_stream_in_1_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_1_valid">
+         <obj_property name="ElementShortName">auto_stream_in_1_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_1_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_1_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_1_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_1_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_1_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_0_ready">
+         <obj_property name="ElementShortName">auto_stream_in_0_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_0_valid">
+         <obj_property name="ElementShortName">auto_stream_in_0_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_0_bits_data">
+         <obj_property name="ElementShortName">auto_stream_in_0_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_in_0_bits_last">
+         <obj_property name="ElementShortName">auto_stream_in_0_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_in_0_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_7_ready">
+         <obj_property name="ElementShortName">auto_stream_out_7_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_7_valid">
+         <obj_property name="ElementShortName">auto_stream_out_7_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_7_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_7_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_7_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_7_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_7_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_6_ready">
+         <obj_property name="ElementShortName">auto_stream_out_6_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_6_valid">
+         <obj_property name="ElementShortName">auto_stream_out_6_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_6_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_6_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_6_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_6_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_6_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_5_ready">
+         <obj_property name="ElementShortName">auto_stream_out_5_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_5_valid">
+         <obj_property name="ElementShortName">auto_stream_out_5_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_5_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_5_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_5_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_5_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_5_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_4_ready">
+         <obj_property name="ElementShortName">auto_stream_out_4_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_4_valid">
+         <obj_property name="ElementShortName">auto_stream_out_4_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_4_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_4_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_4_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_4_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_4_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_3_ready">
+         <obj_property name="ElementShortName">auto_stream_out_3_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_3_valid">
+         <obj_property name="ElementShortName">auto_stream_out_3_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_3_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_3_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_3_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_3_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_3_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_2_ready">
+         <obj_property name="ElementShortName">auto_stream_out_2_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_2_valid">
+         <obj_property name="ElementShortName">auto_stream_out_2_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_2_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_2_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_2_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_2_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_2_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_1_ready">
+         <obj_property name="ElementShortName">auto_stream_out_1_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_1_valid">
+         <obj_property name="ElementShortName">auto_stream_out_1_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_1_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_1_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_1_bits_last">
+         <obj_property name="ElementShortName">auto_stream_out_1_bits_last</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_1_bits_last</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_0_ready">
+         <obj_property name="ElementShortName">auto_stream_out_0_ready</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_ready</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_0_valid">
+         <obj_property name="ElementShortName">auto_stream_out_0_valid</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_0_bits_data">
+         <obj_property name="ElementShortName">auto_stream_out_0_bits_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">auto_stream_out_0_bits_data[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/NexysVideoHarness_TB/DUT/chiptop0/system/chain/dsp/dopplerFFT/auto_stream_out_0_bits_last">
          <obj_property name="ElementShortName">auto_stream_out_0_bits_last</obj_property>
          <obj_property name="ObjectShortName">auto_stream_out_0_bits_last</obj_property>
       </wvobject>
