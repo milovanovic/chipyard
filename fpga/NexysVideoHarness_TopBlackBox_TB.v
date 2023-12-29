@@ -116,49 +116,31 @@ NexysVideoHarness DUT(
     .sys_clock(sys_clock),
     .uart_txd(uart_txd),
     .uart_rxd(uart_rxd),
-    .lvds_lvds_0_i_clk_p(lvds_0_i_clk_p),
-    .lvds_lvds_0_i_clk_n(lvds_0_i_clk_n),
-    .lvds_lvds_0_i_data_p_0(lvds_0_i_data_p_0),
-    .lvds_lvds_0_i_data_p_1(lvds_0_i_data_p_1),
-    .lvds_lvds_0_i_data_p_2(lvds_0_i_data_p_2),
-    .lvds_lvds_0_i_data_p_3(lvds_0_i_data_p_3),
-    .lvds_lvds_0_i_data_n_0(lvds_0_i_data_n_0),
-    .lvds_lvds_0_i_data_n_1(lvds_0_i_data_n_1),
-    .lvds_lvds_0_i_data_n_2(lvds_0_i_data_n_2),
-    .lvds_lvds_0_i_data_n_3(lvds_0_i_data_n_3),
-    .lvds_lvds_0_i_valid_p(lvds_0_i_valid_p),
-    .lvds_lvds_0_i_valid_n(lvds_0_i_valid_n),
-    .lvds_lvds_0_i_frame_p(lvds_0_i_frame_p),
-    .lvds_lvds_0_i_frame_n(lvds_0_i_frame_n),
-    .lvds_lvds_1_i_clk_p(lvds_1_i_clk_p),
-    .lvds_lvds_1_i_clk_n(lvds_1_i_clk_n),
-    .lvds_lvds_1_i_data_p_0(lvds_1_i_data_p_0),
-    .lvds_lvds_1_i_data_p_1(lvds_1_i_data_p_1),
-    .lvds_lvds_1_i_data_p_2(lvds_1_i_data_p_2),
-    .lvds_lvds_1_i_data_p_3(lvds_1_i_data_p_3),
-    .lvds_lvds_1_i_data_n_0(lvds_1_i_data_n_0),
-    .lvds_lvds_1_i_data_n_1(lvds_1_i_data_n_1),
-    .lvds_lvds_1_i_data_n_2(lvds_1_i_data_n_2),
-    .lvds_lvds_1_i_data_n_3(lvds_1_i_data_n_3),
-    .lvds_lvds_1_i_valid_p(lvds_1_i_valid_p),
-    .lvds_lvds_1_i_valid_n(lvds_1_i_valid_n),
-    .lvds_lvds_1_i_frame_p(lvds_1_i_frame_p),
-    .lvds_lvds_1_i_frame_n(lvds_1_i_frame_n),
-    .eth_phy_resetn(eth_phy_resetn),
-    .eth_rgmii_txd_0(eth_rgmii_txd_0),
-    .eth_rgmii_txd_1(eth_rgmii_txd_1),
-    .eth_rgmii_txd_2(eth_rgmii_txd_2),
-    .eth_rgmii_txd_3(eth_rgmii_txd_3),
-    .eth_rgmii_tx_ctl(eth_rgmii_tx_ctl),
-    .eth_rgmii_txc(eth_rgmii_txc),
-    .eth_rgmii_rxd_0(eth_rgmii_rxd_0),
-    .eth_rgmii_rxd_1(eth_rgmii_rxd_1),
-    .eth_rgmii_rxd_2(eth_rgmii_rxd_2),
-    .eth_rgmii_rxd_3(eth_rgmii_rxd_3),
-    .eth_rgmii_rx_ctl(eth_rgmii_rx_ctl),
-    .eth_rgmii_rxc(eth_rgmii_rxc),
-    .eth_mdc(eth_mdc),
-    .eth_mdio(eth_mdio),
+    .top_io_2_lvds_clk_p(lvds_0_i_clk_p),
+    .top_io_2_lvds_clk_n(lvds_0_i_clk_n),
+    .top_io_2_lvds_data_p({lvds_0_i_data_p_3, lvds_0_i_data_p_2, lvds_0_i_data_p_1, lvds_0_i_data_p_0}),
+    .top_io_2_lvds_data_n({lvds_0_i_data_n_3, lvds_0_i_data_n_2, lvds_0_i_data_n_1, lvds_0_i_data_n_0}),
+    .top_io_2_lvds_valid_p(lvds_0_i_valid_p),
+    .top_io_2_lvds_valid_n(lvds_0_i_valid_n),
+    .top_io_2_lvds_frame_clk_p(lvds_0_i_frame_p),
+    .top_io_2_lvds_frame_clk_n(lvds_0_i_frame_n),
+    .top_io_3_lvds_clk_p(lvds_1_i_clk_p),
+    .top_io_3_lvds_clk_n(lvds_1_i_clk_n),
+    .top_io_3_lvds_data_p({lvds_1_i_data_p_3, lvds_1_i_data_p_2, lvds_1_i_data_p_1, lvds_1_i_data_p_0}),
+    .top_io_3_lvds_data_n({lvds_1_i_data_n_3, lvds_1_i_data_n_2, lvds_1_i_data_n_1, lvds_1_i_data_n_0}),
+    .top_io_3_lvds_valid_p(lvds_1_i_valid_p),
+    .top_io_3_lvds_valid_n(lvds_1_i_valid_n),
+    .top_io_3_lvds_frame_clk_p(lvds_1_i_frame_p),
+    .top_io_3_lvds_frame_clk_n(lvds_1_i_frame_n),
+    .top_phy_resetn(eth_phy_resetn),
+    .top_rgmii_txd({eth_rgmii_txd_3, eth_rgmii_txd_2, eth_rgmii_txd_1, eth_rgmii_txd_0}),
+    .top_rgmii_tx_ctl(eth_rgmii_tx_ctl),
+    .top_rgmii_txc(eth_rgmii_txc),
+    .top_rgmii_rxd({eth_rgmii_rxd_3, eth_rgmii_rxd_2, eth_rgmii_rxd_1, eth_rgmii_rxd_0}),
+    .top_rgmii_rx_ctl(eth_rgmii_rx_ctl),
+    .top_rgmii_rxc(eth_rgmii_rxc),
+    .top_mdc(eth_mdc),
+    .top_mdio(eth_mdio),
     .reset(reset),
     .led_0(led_0),
     .led_1(led_1),
@@ -167,33 +149,33 @@ NexysVideoHarness DUT(
     .led_4(led_4),
     .led_5(led_5),
     .led_6(led_6),
-    .led_7(led_7)
-//    .awr_host_intr1_fmc(0),
-//    .awr_host_intr2_fmc(0),
-//    .awr_host_intr3_fmc(0),
-//    .awr_host_intr4_fmc(0),
-//    .awr_spi_cs1_fmc(),
-//    .awr_spi_cs2_fmc(),
-//    .awr_spi_cs3_fmc(),
-//    .awr_spi_cs4_fmc(),
-//    .awr_spi_miso_fmc(0),
-//    .awr_spi_mosi_fmc(),
-//    .awr_spi_clk_fmc(),
-//    .awr_nrst1_pmod(),
-//    .awr_nrst2_fmc(),
-//    .awr_host_intr1(),
-//    .awr_host_intr2(),
-//    .awr_host_intr3(),
-//    .awr_host_intr4(),
-//    .awr_spi_cs1(0),
-//    .awr_spi_cs2(0),
-//    .awr_spi_cs3(0),
-//    .awr_spi_cs4(0),
-//    .awr_spi_miso(),
-//    .awr_spi_mosi(0),
-//    .awr_spi_clk(0),
-//    .awr_nrst1(0),
-//    .awr_nrst2(0)
+    .led_7(led_7),
+    .top_awr_host_intr1_fmc(0),
+    .top_awr_host_intr2_fmc(0),
+    .top_awr_host_intr3_fmc(0),
+    .top_awr_host_intr4_fmc(0),
+    .top_awr_spi_cs1_fmc(),
+    .top_awr_spi_cs2_fmc(),
+    .top_awr_spi_cs3_fmc(),
+    .top_awr_spi_cs4_fmc(),
+    .top_awr_spi_miso_fmc(0),
+    .top_awr_spi_mosi_fmc(),
+    .top_awr_spi_clk_fmc(),
+    .top_awr_nrst1_pmod(),
+    .top_awr_nrst2_fmc(),
+    .top_awr_host_intr1(),
+    .top_awr_host_intr2(),
+    .top_awr_host_intr3(),
+    .top_awr_host_intr4(),
+    .top_awr_spi_cs1(0),
+    .top_awr_spi_cs2(0),
+    .top_awr_spi_cs3(0),
+    .top_awr_spi_cs4(0),
+    .top_awr_spi_miso(),
+    .top_awr_spi_mosi(0),
+    .top_awr_spi_clk(0),
+    .top_awr_nrst1(0),
+    .top_awr_nrst2(0)
 );
 
 // Reset
@@ -214,19 +196,19 @@ reg [`DATAWIDTH/2-1:0] dataHigh_1_3, dataLow_1_3 = 0;
 
 initial begin
     for (i=0; i<`FFTSIZE; i = i + 1) begin
-        dataLow_0_0  = i;
-        dataLow_0_1  = i << 1;
-        dataLow_0_2  = i << 2;
-        dataLow_0_3  = i << 3;
+        dataLow_0_0 = i;
+        dataLow_0_1 = i << 1;
+        dataLow_0_2 = i << 2;
+        dataLow_0_3 = i << 3;
+        dataLow_1_0 = 8'h50;
+        dataLow_1_1 = 8'h51;
+        dataLow_1_2 = 8'h52;
+        dataLow_1_3 = 8'h53;
+        
         dataHigh_0_0 = 8'hA0;
         dataHigh_0_1 = 8'hA1;
         dataHigh_0_2 = 8'hA2;
         dataHigh_0_3 = 8'hA3;
-       
-        dataLow_1_0  = 8'h50;
-        dataLow_1_1  = 8'h51;
-        dataLow_1_2  = 8'h52;
-        dataLow_1_3  = 8'h53;
         dataHigh_1_0 = i;
         dataHigh_1_1 = i << 1;
         dataHigh_1_2 = i << 2;
