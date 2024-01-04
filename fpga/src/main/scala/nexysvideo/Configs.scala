@@ -150,8 +150,9 @@ class TinyRocketNexysVideoConfig extends Config(
   new WithTinyNexysVideoTweaks ++
     new WithTestChain(new TestChainParams(
       lvdsChannels = 4, lvdsChips = 2,
-      rxNum = 8, txNum = 2, angleFFTSizeAfterPadding = 32,
-      rangeFFTSize = 256, dopplerFFTSize = 32, dopplerOutputNodes = 8, dopplerNumInAngleBranch = 4
+      rxNum = 8, txNum = 4,
+      angleFFTSizeAfterPadding = 32, rangeFFTSize = 256, dopplerFFTSize = 32,
+      dopplerOutputNodes = 8 , dopplerNumInAngleBranch = 4
     ).params) ++
     new WithNexysVideoDSPChain ++
     new chipyard.config.WithBroadcastManager ++ // no l2
