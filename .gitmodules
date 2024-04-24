@@ -148,3 +148,9 @@
 [submodule "generators/rocket-chip-inclusive-cache"]
 	path = generators/rocket-chip-inclusive-cache
 	url = https://github.com/chipsalliance/rocket-chip-inclusive-cache.git
+[submodule "generators/dsp-blocks/fastdma"]
+	path = generators/dsp-blocks/fastdma
+	url = git@github.com:pznikola/fastvdma.git
+[submodule "generators/dsp-blocks/ethernet"]
+	path = generators/dsp-blocks/ethernet
+	url = git@github.com:pznikola/ethernet-wrapper.git
