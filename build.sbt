@@ -149,6 +149,7 @@ lazy val chipyard = (project in file("generators/chipyard"))
   .dependsOn(testchipip, rocketchip, boom, hwacha, rocketchip_blocks, rocketchip_inclusive_cache, iocell,
     sha3, // On separate line to allow for cleaner tutorial-setup patches
     dsptools, rocket_dsp_utils,
+    ethernet, fastdma,
     gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,
     constellation, mempress, barf, shuttle, caliptra_aes)
   .settings(libraryDependencies ++= rocketLibDeps.value)
@@ -311,3 +312,37 @@ lazy val fpga_shells = (project in file("./fpga/fpga-shells"))
 lazy val fpga_platforms = (project in file("./fpga"))
   .dependsOn(chipyard, fpga_shells)
   .settings(commonSettings)
+
+// RHA modules
+lazy val fastdma = freshProject("fastdma", file("./generators/dsp-blocks/fastdma"))
+  .dependsOn(rocketchip, cde, `rocket_dsp_utils`)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.8.+")
+
+lazy val ethernet = (project in file("generators/dsp-blocks/ethernet"))
+  .dependsOn(`rocket_dsp_utils`, dsptools, rocketchip)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+  .settings(chiselSettings)
+  .settings(
+    Compile / resourceDirectory            := baseDirectory.value / "src" / "main" / "resources" / "ethernet" / "vsrc" / "ethernet" / "rtl",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "resources" / "ethernet" / "vsrc" / "rtl",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "resources" / "ethernet" / "vsrc" / "axis" / "rtl"
+  )
+
+lazy val utils = freshProject("utils", file("./generators/dsp-blocks/utils"))
+  .dependsOn(rocketchip, cde, `rocket_dsp_utils`)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+
+lazy val datarx = freshProject("datarx", file("./generators/dsp-blocks/datarx"))
+  .dependsOn(rocketchip, cde, `rocket_dsp_utils`, utils)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+
+lazy val rha = freshProject("rha", file("./generators/dsp-blocks/RHA"))
+  .dependsOn(rocketchip, cde, `rocket_dsp_utils`, dsptools, ethernet, fastdma, datarx)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)
+
