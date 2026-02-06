@@ -72,6 +72,20 @@ ifeq ($(SUB_PROJECT),nexysvideo)
 	FPGA_BRAND        ?= xilinx
 endif
 
+ifeq ($(SUB_PROJECT),genesys2)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= Genesys2Harness
+	VLOG_MODEL        ?= Genesys2Harness
+	MODEL_PACKAGE     ?= chipyard.fpga.genesys2
+	CONFIG            ?= RocketGenesys2Config
+	CONFIG_PACKAGE    ?= chipyard.fpga.genesys2
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= genesys2
+	FPGA_BRAND        ?= xilinx
+endif
+
 ifeq ($(SUB_PROJECT),arty35t)
 	# TODO: Fix with Arty
 	SBT_PROJECT       ?= chipyard_fpga
