@@ -534,3 +534,18 @@ lazy val firechip = (project in file("generators/firechip/chip"))
     Test / testOptions += Tests.Argument("-oF")
   )
   .settings(scalaTestSettings)
+
+// Ethernet wrapper
+lazy val ethernet = freshProject("ethernet", file("./generators/ethernet"))
+  .dependsOn(rocketchip, rocket_dsp_utils)
+  .settings(
+    libraryDependencies ++= rocketLibDeps.value,
+    libraryDependencies ++= Seq("edu.berkeley.cs" %% "chiseltest" % chiselTestVersion),
+    libraryDependencies ++= Seq("com.typesafe.play" %% "play-json" % "2.10.6"),
+    libraryDependencies ++= Seq("org.scalanlp" %% "breeze" % "2.1.0")
+  )
+  .settings(commonSettings)
+  .settings(
+    Compile / resourceDirectory := baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "rtl",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "lib" / "axis" / "rtl"
+  )
