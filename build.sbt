@@ -178,7 +178,7 @@ lazy val chipyard = {
   val baseProjects: Seq[ProjectReference] =
     Seq(
       testchipip, rocketchip, boom, rocketchip_blocks, rocketchip_inclusive_cache,
-      icenet, tracegen,
+      icenet, tracegen, ethernet,
       constellation, barf, shuttle, rerocc,
     ).map(sbt.Project.projectToRef) ++
     (if (useChisel7) Seq() else Seq(sbt.Project.projectToRef(firrtl2_bridge))) ++
@@ -543,7 +543,7 @@ lazy val firechip = (project in file("generators/firechip/chip"))
 
 // Ethernet wrapper
 lazy val ethernet = freshProject("ethernet", file("./generators/ethernet"))
-  .dependsOn(rocketchip, rocket_dsp_utils)
+  .dependsOn(rocketchip, rocket_dsp_utils, testchipip)
   .settings(
     libraryDependencies ++= rocketLibDeps.value,
     libraryDependencies ++= Seq("edu.berkeley.cs" %% "chiseltest" % chiselTestVersion),

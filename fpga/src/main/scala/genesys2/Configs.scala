@@ -12,6 +12,8 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // DOC include start: WithGenesys2Tweaks and Rocket
 class WithGenesys2Tweaks(freqMHz: Double = 50) extends Config(
+  new rivet.wrapper.WithEthernetRGMII ++
+  new WithGenesys2Ethernet ++
   new WithGenesys2UARTTSI ++
   new WithGenesys2DDRTL ++
   new WithNoDesignKey ++

@@ -4,8 +4,10 @@ package chipyard.fpga.genesys2
 import chipyard.harness._
 import chipyard.iobinders._
 import chisel3._
+import freechips.rocketchip.util.ElaborationArtefacts
 import org.chipsalliance.diplomacy.lazymodule.LazyRawModuleImp
 import org.chipsalliance.diplomacy.nodes.HeterogeneousBag
+import rivet.wrapper.rgmii_phy_io
 import sifive.fpgashells.shell._
 import testchipip.serdes._
 
@@ -80,3 +82,64 @@ class WithGenesys2SerialTLToGPIO extends HarnessBinder({
     }
 })
 
+class WithGenesys2Ethernet extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetRGMIIPort, chipId: Int) =>
+    val nexysTh = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[Genesys2Harness]
+    val harnessIO = IO(chiselTypeOf(port.io.phy)).suggestName("ethernet_io")
+    harnessIO <> port.io.phy
+
+    harnessIO match {
+      case io: rgmii_phy_io =>
+        port.io.gtx_clk := nexysTh.ethClock_125.get.in.head._1.clock
+        port.io.gtx_clk90 := nexysTh.ethClock_125_90.get.in.head._1.clock
+        port.io.gtx_rst := nexysTh.ethClock_125.get.in.head._1.reset.asBool
+        val packagePinsWithPackageIOs = Seq(
+          ("AJ14", IOPin(io.rgmii_rxd(0))), // Sch=ETH_RXD0
+          ("AH14", IOPin(io.rgmii_rxd(1))), // Sch=ETH_RXD1
+          ("AK13", IOPin(io.rgmii_rxd(2))), // Sch=ETH_RXD2
+          ("AJ13", IOPin(io.rgmii_rxd(3))), // Sch=ETH_RXD3
+          ("AJ12", IOPin(io.rgmii_txd(0))), // Sch=ETH_TXD0
+          ("AK11", IOPin(io.rgmii_txd(1))), // Sch=ETH_TXD1
+          ("AJ11", IOPin(io.rgmii_txd(2))), // Sch=ETH_TXD2
+          ("AK10", IOPin(io.rgmii_txd(3))), // Sch=ETH_TXD3
+          ("AE10", IOPin(io.rgmii_tx_clk)), // Sch=ETH_TX_CLK
+          ("AK14", IOPin(io.rgmii_tx_ctl)), // Sch=ETH_TX_EN
+          ("AG10", IOPin(io.rgmii_rx_clk)), // Sch=ETH_RX_CLK
+          ("AH11", IOPin(io.rgmii_rx_ctl))  // Sch=ETH_RX_CTL
+        )
+        packagePinsWithPackageIOs foreach { case (pin, io) =>
+          nexysTh.xdc.addPackagePin(io, pin)
+          nexysTh.xdc.addIOStandard(io, "LVCMOS15")
+        }
+
+        // Ethernet clock
+        nexysTh.sdc.addClock("rgmii_rx_clk", IOPin(io.rgmii_rx_clk), 125)
+        nexysTh.sdc.addGroup(clocks = Seq("rgmii_rx_clk"))
+
+        nexysTh.xdc.addRawContent(
+          "# Reset synchronization\n" +
+          "set reset_ffs [get_cells -hier -regexp \".*/(rx|tx)_rst_reg_reg\\[\\\\d\\]\" " +
+          "-filter {PARENT =~ *rgmii_phy_if_inst}]\n" +
+          "set_property ASYNC_REG TRUE $reset_ffs\n" +
+          "# Clock output ODDR\n" +
+          "set_property ASYNC_REG TRUE " +
+          "[get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]"
+        )
+
+        nexysTh.sdc.addRawConstraint(
+          "set_max_delay" +
+          " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_1_reg}]" +
+          " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
+          " -datapath_only 2.000"
+        )
+        nexysTh.sdc.addRawConstraint(
+          "set_max_delay" +
+          " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_2_reg}]" +
+          " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
+          " -datapath_only 2.000"
+        )
+        nexysTh.sdc.addRawConstraint(
+          "set_false_path -to [get_pins -of_objects $reset_ffs -filter {IS_PRESET || IS_RESET}]"
+        )
+    }
+})

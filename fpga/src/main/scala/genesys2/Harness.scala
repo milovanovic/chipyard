@@ -13,8 +13,10 @@ import org.chipsalliance.cde.config.Parameters
 import org.chipsalliance.diplomacy._
 import org.chipsalliance.diplomacy.bundlebridge.BundleBridgeSource
 import org.chipsalliance.diplomacy.lazymodule.LazyModule
+import rivet.wrapper.EthernetRGMIIKey
 import sifive.blocks.devices.uart._
 import sifive.fpgashells.clocks._
+import sifive.fpgashells.ip.xilinx.Series7MMCM
 import sifive.fpgashells.shell._
 import sifive.fpgashells.shell.xilinx._
 
@@ -45,6 +47,27 @@ class Genesys2Harness(override implicit val p: Parameters) extends Genesys2Shell
   val ddrBlockDuringReset = if (p(Genesys2ShellDDR)) Some(LazyModule(new TLBlockDuringReset(4))) else None
   if (p(Genesys2ShellDDR)) { ddrOverlay.get.overlayOutput.ddr := ddrBlockDuringReset.get.node := ddrClient.get }
 
+  // Ethernet
+  val harnessETHPLL = if (dp(EthernetRGMIIKey).isDefined) Some(new PLLFactory(this, 7, p => Module(new Series7MMCM(PLLParameters(
+    name = "eth_pll",
+    input = PLLInClockParameters(freqMHz = 200.0),
+    req = Seq(
+      PLLOutClockParameters(freqMHz = 125.0),
+      PLLOutClockParameters(freqMHz = 125.0, phaseDeg = 90)
+    )
+  ))))) else None
+  val harnessETHPLLNode = if (dp(EthernetRGMIIKey).isDefined) Some(harnessETHPLL.get()) else None
+  val ethPLLClock = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSourceNode(freqMHz = 100)) else None
+  val ethClock_125 = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSinkNode(freqMHz = 125)) else None
+  val ethClock_125_90 = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSinkNode(freqMHz = 125, phaseDeg = 90)) else None
+  val ethWrangler = if (dp(EthernetRGMIIKey).isDefined) Some(LazyModule(new ResetWrangler())) else None
+  val ethGroup = if (dp(EthernetRGMIIKey).isDefined) Some(ClockGroup()) else None
+  if (dp(EthernetRGMIIKey).isDefined) {
+    ethClock_125.get := ethWrangler.get.node := ethGroup.get := harnessETHPLLNode.get
+    ethClock_125_90.get := ethWrangler.get.node := ethGroup.get
+    harnessETHPLLNode.get := ethPLLClock.get
+  }
+
   val ledOverlays = dp(LEDOverlayKey).map(_.place(LEDDesignInput()))
   val all_leds = ledOverlays.map(_.overlayOutput.led)
   val status_leds = all_leds.take(2)
@@ -57,10 +80,10 @@ class Genesys2Harness(override implicit val p: Parameters) extends Genesys2Shell
     all_leds.foreach(_ := DontCare)
     clockOverlay.overlayOutput.node.out.head._1.reset := ~resetPin
 
-    val clk_100mhz = clockOverlay.overlayOutput.node.out.head._1.clock
+    val clk_200mhz = clockOverlay.overlayOutput.node.out.head._1.clock
 
     // Blink the status LEDs for sanity
-    withClockAndReset(clk_100mhz, dutClock.in.head._1.reset) {
+    withClockAndReset(clk_200mhz, dutClock.in.head._1.reset) {
       val period = (BigInt(100) << 20) / status_leds.size
       val counter = RegInit(0.U(log2Ceil(period).W))
       val on = RegInit(0.U(log2Ceil(status_leds.size).W))
@@ -85,6 +108,11 @@ class Genesys2Harness(override implicit val p: Parameters) extends Genesys2Shell
       ddrOverlay.get.mig.module.reset := harnessBinderReset
       ddrBlockDuringReset.get.module.clock := harnessBinderClock
       ddrBlockDuringReset.get.module.reset := harnessBinderReset.asBool || !ddrOverlay.get.mig.module.io.port.init_calib_complete
+    }
+
+    if (dp(EthernetRGMIIKey).isDefined) {
+      ethPLLClock.get.out.head._1.clock := clk_200mhz
+      harnessETHPLL.get.plls.foreach(_._1.getReset.get := pllReset)
     }
 
     instantiateChipTops()
