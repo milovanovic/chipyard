@@ -633,16 +633,26 @@ class WithCTCPunchthrough extends OverrideIOBinder({
 
 class WithEthernetRGMIIPunchthrough extends OverrideIOBinder({
   (system: rivet.wrapper.CanHavePeripheryEthernetRGMII) => {
-    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.rgmii_io](system.io_rgmii.get))
-    port <> system.io_rgmii.get
-    (Seq(EthernetRGMIIPort(() => port)), Nil)
+    system.io_rgmii match {
+      case Some(io) =>
+        val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.rgmii_io](io))
+        port <> io
+        (Seq(EthernetRGMIIPort(() => port)), Nil)
+      case None =>
+        (Nil, Nil)
+    }
   }
 })
 
-//class WithEthernetGMIIPunchthrough extends OverrideIOBinder({
-//  (system: rivet.wrapper.CanHavePeripheryEthernetGMII) => {
-//    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.gmii_io](system.io_gmii.get))
-//    port <> system.io_gmii.get
-//    (Seq(EthernetGMIIPort(() => port)), Nil)
-//  }
-//})
+class WithEthernetGMIIPunchthrough extends OverrideIOBinder({
+  (system: rivet.wrapper.CanHavePeripheryEthernetGMII) => {
+    system.io_gmii match {
+      case Some(io) =>
+        val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.gmii_io](io))
+        port <> io
+        (Seq(EthernetGMIIPort(() => port)), Nil)
+      case None =>
+        (Nil, Nil)
+    }
+  }
+})
