@@ -26,7 +26,7 @@ class WithGenesys2Tweaks(freqMHz: Double = 50) extends Config(
   new chipyard.config.WithNoDebug ++ // no jtag
   new chipyard.config.WithNoUART ++ // use UART for the UART-TSI thing instad
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(512) << 20) ++ // 512mb on Nexys Video
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(1024) << 20) ++ // 1gb on Genesys2
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
 class RocketGenesys2Config extends Config(
