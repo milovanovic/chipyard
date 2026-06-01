@@ -2,11 +2,13 @@
 package chipyard.fpga.nexysvideo
 
 import chisel3._
+import chisel3.experimental.{Analog, attach}
 import org.chipsalliance.diplomacy.lazymodule.LazyRawModuleImp
 import org.chipsalliance.diplomacy.nodes.HeterogeneousBag
 import chipyard.harness._
 import chipyard.iobinders._
 import sifive.fpgashells.shell._
+import sifive.fpgashells.ip.xilinx.IOBUF
 import testchipip.serdes._
 
 class WithNexysVideoUARTTSI(uartBaudRate: BigInt = 115200) extends HarnessBinder({
@@ -110,6 +112,12 @@ class WithNexysVideoEthernet extends HarnessBinder({
       nexysTh.xdc.addIOStandard(io, "LVCMOS25")
     }
 
+    // Active-low PHY hardware reset (Sch=ETH_RSTB, package pin U7).
+    // This pin sits in a 3.3 V bank, so it uses LVCMOS33 rather than the LVCMOS25 of the RGMII data pins.
+    val phyResetIO = IOPin(harnessIO.phy_reset_n)
+    nexysTh.xdc.addPackagePin(phyResetIO, "U7")
+    nexysTh.xdc.addIOStandard(phyResetIO, "LVCMOS33")
+
     // Ethernet clock
     nexysTh.sdc.addClock("rgmii_rx_clk", IOPin(harnessIO.rgmii_rx_clk), 125)
     nexysTh.sdc.addGroup(clocks = Seq("rgmii_rx_clk"))
@@ -139,4 +147,28 @@ class WithNexysVideoEthernet extends HarnessBinder({
     nexysTh.sdc.addRawConstraint(
       "set_false_path -to [get_pins -of_objects $reset_ffs -filter {IS_PRESET || IS_RESET}]"
     )
+})
+
+// MDIO PHY-management pins.
+// MDC is a plain output (Sch=eth_mdc, AA16).
+// MDIO is a bidirectional open-drain pad driven through an IOBUF (Sch=eth_mdio, Y16).
+class WithNexysVideoMDIO extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetMDIOPort, chipId: Int) =>
+    val nexysTh = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[NexysVideoHarness]
+
+    val mdcIO = IO(Output(Bool())).suggestName("eth_mdc")
+    mdcIO := port.io.mdc
+    val mdcPin = IOPin(mdcIO)
+    nexysTh.xdc.addPackagePin(mdcPin, "AA16")
+    nexysTh.xdc.addIOStandard(mdcPin, "LVCMOS25")
+
+    val mdioPad = IO(Analog(1.W)).suggestName("eth_mdio")
+    val iobuf = Module(new IOBUF())
+    iobuf.io.I := port.io.mdio_o
+    iobuf.io.T := port.io.mdio_t
+    port.io.mdio_i := iobuf.io.O
+    attach(iobuf.io.IO, mdioPad)
+    val mdioPin = IOPin(mdioPad)
+    nexysTh.xdc.addPackagePin(mdioPin, "Y16")
+    nexysTh.xdc.addIOStandard(mdioPin, "LVCMOS25")
 })

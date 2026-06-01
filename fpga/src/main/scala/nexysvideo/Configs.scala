@@ -14,6 +14,8 @@ class WithNoDesignKey extends Config((site, here, up) => {
 class WithNexysVideoTweaks(freqMHz: Double = 50) extends Config(
   new rivet.wrapper.WithEthernetRGMII ++
   new WithNexysVideoEthernet ++
+  new rivet.wrapper.WithEthernetMDIO ++
+  new WithNexysVideoMDIO ++
   new WithNexysVideoUARTTSI ++
   new WithNexysVideoDDRTL ++
   new WithNoDesignKey ++
