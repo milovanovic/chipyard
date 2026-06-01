@@ -38,6 +38,23 @@ class Ethernet10GLoopbackRocketConfig extends Config(
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)
 
+// Chisel-native RGMII MAC loopback in sim.
+// Same Port/queues/binary as EthernetRGMIILoopbackRocketConfig, only the MAC implementation differs (EthMac1GRgmiiTL, selected via useChiselMac).
+// Run with sims/verilator: make CONFIG=EthMac1GRgmiiLoopbackRocketConfig run-binary BINARY=.../eth_loopback.riscv
+class EthMac1GRgmiiLoopbackRocketConfig extends Config(
+  new chipyard.harness.WithEthernetRGMIILoopback ++          // sim clocks + TX->RX loopback (reused)
+  new rivet.wrapper.WithEthernetRGMIIChiselSim ++            // Chisel-native MAC, target="SIM"
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+// Chisel-native GMII MAC loopback in sim.
+// Run with sims/verilator: make CONFIG=EthMac1GGmiiLoopbackRocketConfig run-binary BINARY=.../eth_loopback.riscv
+class EthMac1GGmiiLoopbackRocketConfig extends Config(
+  new chipyard.harness.WithEthernetGMIILoopback ++           // sim clock + GMII TX->RX loopback (reused)
+  new rivet.wrapper.WithEthernetGMIIChiselSim ++             // Chisel-native MAC, target="SIM"
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
 class DualRocketConfig extends Config(
   new freechips.rocketchip.rocket.WithNHugeCores(2) ++
   new chipyard.config.AbstractConfig)
