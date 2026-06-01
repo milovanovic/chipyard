@@ -34,6 +34,8 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with chipyard.example.CanHavePeripheryGCD // Enables optionally adding the GCD example widget
   with rivet.wrapper.CanHavePeripheryEthernetRGMII // Enables optionally adding the RGMII Ethernet example widget
   with rivet.wrapper.CanHavePeripheryEthernetGMII  // Enables optionally adding the GMII Ethernet example widget
+  with rivet.wrapper.CanHavePeripheryEthernet10G   // Enables optionally adding the 10G (XGMII) Ethernet example widget
+  with rivet.wrapper.CanHavePeripheryEthernetMDIO  // Enables optionally adding the MDIO PHY-management master
   with chipyard.clocking.HasChipyardPRCI // Use Chipyard reset/clock distribution
   with chipyard.clocking.CanHaveClockTap // Enables optionally adding a clock tap output port
   with constellation.soc.CanHaveGlobalNoC // Support instantiating a global NoC interconnect
