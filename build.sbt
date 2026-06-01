@@ -541,7 +541,7 @@ lazy val firechip = (project in file("generators/firechip/chip"))
   )
   .settings(scalaTestSettings)
 
-// Ethernet wrapper
+// Ethernet
 lazy val ethernet = freshProject("ethernet", file("./generators/ethernet"))
   .dependsOn(rocketchip, rocket_dsp_utils, testchipip)
   .settings(
@@ -553,5 +553,6 @@ lazy val ethernet = freshProject("ethernet", file("./generators/ethernet"))
   .settings(commonSettings)
   .settings(
     Compile / resourceDirectory := baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "rtl",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "lib" / "axis" / "rtl"
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "lib" / "axis" / "rtl",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "mdio" / "rtl"
   )
