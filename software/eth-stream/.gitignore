@@ -1,0 +1,11 @@
+# Build artifacts
+*.o
+*.riscv
+*.dump
+
+# PC-side host tool binary
+pc/raw_eth
+
+# Simulation waveforms
+*.vcd
+*.fst
