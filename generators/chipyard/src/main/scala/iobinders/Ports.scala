@@ -119,14 +119,14 @@ case class OffchipSelPort  (val getIO: () => UInt)
 case class CTCPort (val getIO: () => Data, val portId: Int) 
     extends Port[Data]
 
-case class EthernetRGMIIPort (val getIO: () => rivet.wrapper.rgmii_io)
-  extends Port[rivet.wrapper.rgmii_io]
+case class EthernetRGMIIPort (val getIO: () => rivet.wrapper.RgmiiIO)
+  extends Port[rivet.wrapper.RgmiiIO]
 
-case class EthernetMDIOPort (val getIO: () => rivet.wrapper.mdio_io)
-  extends Port[rivet.wrapper.mdio_io]
+case class EthernetMDIOPort (val getIO: () => rivet.wrapper.MdioIO)
+  extends Port[rivet.wrapper.MdioIO]
 
-case class EthernetGMIIPort (val getIO: () => rivet.wrapper.gmii_io)
-  extends Port[rivet.wrapper.gmii_io]
+case class EthernetGMIIPort (val getIO: () => rivet.wrapper.GmiiIO)
+  extends Port[rivet.wrapper.GmiiIO]
 
-case class Ethernet10GPort (val getIO: () => rivet.wrapper.eth_10g_io)
-  extends Port[rivet.wrapper.eth_10g_io]
+case class Ethernet10GPort (val getIO: () => rivet.wrapper.Eth10GIO)
+  extends Port[rivet.wrapper.Eth10GIO]

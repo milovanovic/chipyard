@@ -632,32 +632,32 @@ class WithCTCPunchthrough extends OverrideIOBinder({
 })
 
 class WithEthernetRGMIIPunchthrough extends OverrideIOBinder({
-  (system: rivet.wrapper.CanHavePeripheryEthernetRGMII) => system.io_rgmii.map({ p =>
-    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.rgmii_io](system.io_rgmii.get))
+  (system: rivet.wrapper.CanHavePeripheryEthernetRGMII) => system.ioRgmii.map({ p =>
+    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.RgmiiIO](system.ioRgmii.get))
     port <> p
     (Seq(EthernetRGMIIPort(() => port)), Nil)
   }).getOrElse((Nil, Nil))
 })
 
 class WithEthernetMDIOPunchthrough extends OverrideIOBinder({
-  (system: rivet.wrapper.CanHavePeripheryEthernetMDIO) => system.io_mdio.map({ p =>
-    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.mdio_io](system.io_mdio.get)).suggestName("mdio_port")
+  (system: rivet.wrapper.CanHavePeripheryEthernetMDIO) => system.ioMdio.map({ p =>
+    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.MdioIO](system.ioMdio.get)).suggestName("mdio_port")
     port <> p
     (Seq(EthernetMDIOPort(() => port)), Nil)
   }).getOrElse((Nil, Nil))
 })
 
 class WithEthernetGMIIPunchthrough extends OverrideIOBinder({
-  (system: rivet.wrapper.CanHavePeripheryEthernetGMII) => system.io_gmii.map({ p =>
-    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.gmii_io](system.io_gmii.get))
+  (system: rivet.wrapper.CanHavePeripheryEthernetGMII) => system.ioGmii.map({ p =>
+    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.GmiiIO](system.ioGmii.get))
     port <> p
     (Seq(EthernetGMIIPort(() => port)), Nil)
   }).getOrElse((Nil, Nil))
 })
 
 class WithEthernet10GPunchthrough extends OverrideIOBinder({
-  (system: rivet.wrapper.CanHavePeripheryEthernet10G) => system.io_10g.map({ p =>
-    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.eth_10g_io](system.io_10g.get))
+  (system: rivet.wrapper.CanHavePeripheryEthernet10G) => system.io10G.map({ p =>
+    val port = IO(DataMirror.internal.chiselTypeClone[rivet.wrapper.Eth10GIO](system.io10G.get))
     port <> p
     (Seq(Ethernet10GPort(() => port)), Nil)
   }).getOrElse((Nil, Nil))
