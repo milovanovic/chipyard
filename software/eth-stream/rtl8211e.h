@@ -28,6 +28,7 @@
 // 1000BASE-T control (reg 9): force manual master/slave. Needed for gigabit loopback, which has no link partner to negotiate clock master with.
 #define CTRL1000_MANUAL  0x1000 // enable manual master/slave config
 #define CTRL1000_MASTER  0x0800 // prefer master
+#define CTRL1000_FULL    0x0200 // advertise 1000BASE-T full duplex
 
 // RTL8211E identity: PHYID1 = 0x001C, PHYID2 = 0xC915 (low nibble = silicon revision).
 #define RTL8211E_ID1      0x001C
@@ -47,6 +48,14 @@
 #define RTL8211E_RGMII_CFG_REG 0x1c
 #define RTL8211E_TX_DELAY      (1u << 1) // ~2 ns on TXC
 #define RTL8211E_RX_DELAY      (1u << 2) // ~2 ns on RXC
+
+#ifndef RTL8211E_RGMII_RX_DELAY_ENABLE
+#define RTL8211E_RGMII_RX_DELAY_ENABLE 1
+#endif
+
+#ifndef RTL8211E_RGMII_TX_DELAY_ENABLE
+#define RTL8211E_RGMII_TX_DELAY_ENABLE 0
+#endif
 
 /**
  * Scan the MDIO bus for an RTL8211E.
@@ -109,7 +118,9 @@ inline int rtl8211e_speed(int phy) {
  * @param phy PHY address.
  */
 inline void rtl8211e_restart_aneg(int phy) {
-  mdio_rmw(phy, MII_BMCR, 0, BMCR_ANENABLE | BMCR_ANRESTART);
+  // Leave any previous forced/loopback mode before returning to cable link mode.
+  mdio_rmw(phy, MII_CTRL1000, CTRL1000_MANUAL | CTRL1000_MASTER, CTRL1000_FULL);
+  mdio_write(phy, MII_BMCR, BMCR_ANENABLE | BMCR_ANRESTART);
 }
 
 /**
@@ -131,7 +142,7 @@ inline void rtl8211e_loopback_enable(int phy) {
  * @param phy PHY address.
  */
 inline void rtl8211e_loopback_disable(int phy) {
-  mdio_write(phy, MII_CTRL1000, 0x0000);
+  mdio_rmw(phy, MII_CTRL1000, CTRL1000_MANUAL | CTRL1000_MASTER, CTRL1000_FULL);
   mdio_write(phy, MII_BMCR, BMCR_ANENABLE | BMCR_ANRESTART);
 }
 
@@ -155,10 +166,12 @@ inline int rtl8211e_bringup(int (*print)(const char *, ...)) {
     print("[mdio] RTL8211E at phy=%d id=%04x%04x\n", phy, id1, id2);
   }
 
-  rtl8211e_set_rgmii_delay(phy, /*rx=*/1, /*tx=*/0); // enable RX delay (board straps it off)
+  rtl8211e_set_rgmii_delay(phy, RTL8211E_RGMII_RX_DELAY_ENABLE, RTL8211E_RGMII_TX_DELAY_ENABLE);
   rtl8211e_restart_aneg(phy);
 
   if (print) {
+    print("[mdio] rgmii delay rx=%d tx=%d\n",
+          RTL8211E_RGMII_RX_DELAY_ENABLE, RTL8211E_RGMII_TX_DELAY_ENABLE);
     print("[mdio] link=%s speed=%d (0=10M,1=100M,2=1G)\n",
           rtl8211e_link_up(phy) ? "up" : "down", rtl8211e_speed(phy));
   }

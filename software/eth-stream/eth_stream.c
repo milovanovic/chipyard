@@ -53,7 +53,7 @@ static uint32_t frame_seq(const uint8_t *f) {
 }
 
 int main(void) {
-  setvbuf(stdout, NULL, _IONBF, 0); // DIAGNOSTIC: unbuffered, so prints appear live even if we hang early
+  setvbuf(stdout, NULL, _IONBF, 0);
   printf("[eth] init\n");
   // Bring up the PHY over MDIO first: confirm it's alive, enable RGMII delay, kick autoneg.
   int phy = rtl8211e_bringup(printf);

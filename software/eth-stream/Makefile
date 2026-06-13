@@ -17,7 +17,8 @@ ABI     := lp64d
 CMODEL  := medany
 
 CFLAGS  := -std=gnu99 -O2 -Wall -Wextra -fno-common -fno-builtin-printf \
-           -march=$(ARCH) -mabi=$(ABI) -mcmodel=$(CMODEL) -specs=htif_nano.specs
+           -march=$(ARCH) -mabi=$(ABI) -mcmodel=$(CMODEL) -specs=htif_nano.specs \
+           $(EXTRA_CFLAGS)
 # NB: -specs=htif_nano.specs is in CFLAGS; passing it again here would make the driver
 # process the spec file twice ("rename spec 'link'..."), so the link flags omit it.
 LDFLAGS := -static -T htif.ld
