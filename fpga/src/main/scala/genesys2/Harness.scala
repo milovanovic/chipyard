@@ -13,7 +13,7 @@ import org.chipsalliance.cde.config.Parameters
 import org.chipsalliance.diplomacy._
 import org.chipsalliance.diplomacy.bundlebridge.BundleBridgeSource
 import org.chipsalliance.diplomacy.lazymodule.LazyModule
-import rivet.wrapper.EthernetRGMIIKey
+import rivet.common.EthernetRGMIIKey
 import sifive.blocks.devices.uart._
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.ip.xilinx.Series7MMCM

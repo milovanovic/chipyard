@@ -12,10 +12,6 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // DOC include start: WithNexysVideoTweaks and Rocket
 class WithNexysVideoTweaks(freqMHz: Double = 50) extends Config(
-  new rivet.wrapper.WithEthernetRGMII ++
-  new WithNexysVideoEthernet ++
-  new rivet.wrapper.WithEthernetMDIO ++
-  new WithNexysVideoMDIO ++
   new WithNexysVideoUARTTSI ++
   new WithNexysVideoDDRTL ++
   new WithNoDesignKey ++
@@ -37,26 +33,25 @@ class RocketNexysVideoConfig extends Config(
   new chipyard.RocketConfig)
 // DOC include end: WithNexysVideoTweaks and Rocket
 
-// Same as WithNexysVideoTweaks, but selects the Chisel-native RGMII MAC (EthMac1GRgmiiTL).
-class WithNexysVideoChiselEthTweaks(freqMHz: Double = 50) extends Config(
-  new rivet.wrapper.WithEthernetRGMIIChisel ++
+class WithNexysVideoEthernetTweaks extends Config(
   new WithNexysVideoEthernet ++
-  new rivet.wrapper.WithEthernetMDIO ++
-  new WithNexysVideoMDIO ++
-  new WithNexysVideoUARTTSI ++
-  new WithNexysVideoDDRTL ++
-  new WithNoDesignKey ++
-  new testchipip.tsi.WithUARTTSIClient ++
-  new chipyard.harness.WithSerialTLTiedOff ++
-  new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
-  new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
-  new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
-  new chipyard.clocking.WithPassthroughClockGenerator ++
-  new chipyard.config.WithNoDebug ++
-  new chipyard.config.WithNoUART ++
-  new chipyard.config.WithTLBackingMemory ++
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(512) << 20) ++
-  new freechips.rocketchip.subsystem.WithoutTLMonitors)
+  new rivet.mdio.WithEthernetMDIO ++
+  new WithNexysVideoMDIO)
+
+class WithNexysVideoVerilogEthTweaks(freqMHz: Double = 50) extends Config(
+  new rivet.wrapper.WithEthernetRGMII ++
+  new WithNexysVideoEthernetTweaks ++
+  new WithNexysVideoTweaks(freqMHz))
+
+class RocketNexysVideoVerilogEthConfig extends Config(
+  new WithNexysVideoVerilogEthTweaks ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new chipyard.RocketConfig)
+
+class WithNexysVideoChiselEthTweaks(freqMHz: Double = 50) extends Config(
+  new rivet.WithEthernetRGMII ++
+  new WithNexysVideoEthernetTweaks ++
+  new WithNexysVideoTweaks(freqMHz))
 
 class RocketNexysVideoChiselEthConfig extends Config(
   new WithNexysVideoChiselEthTweaks ++
@@ -92,4 +87,3 @@ class BringupNexysVideoConfig extends Config(
   new WithNexysVideoSerialTLToGPIO ++
   new WithNexysVideoTweaks(freqMHz = 75) ++
   new chipyard.ChipBringupHostConfig)
-

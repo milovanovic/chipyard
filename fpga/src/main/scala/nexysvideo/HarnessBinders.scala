@@ -7,9 +7,12 @@ import org.chipsalliance.diplomacy.lazymodule.LazyRawModuleImp
 import org.chipsalliance.diplomacy.nodes.HeterogeneousBag
 import chipyard.harness._
 import chipyard.iobinders._
+import freechips.rocketchip.util.ElaborationArtefacts
 import sifive.fpgashells.shell._
 import sifive.fpgashells.ip.xilinx.IOBUF
 import testchipip.serdes._
+
+import scala.io.Source
 
 class WithNexysVideoUARTTSI(uartBaudRate: BigInt = 115200) extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort, chipId: Int) => {
@@ -112,8 +115,7 @@ class WithNexysVideoEthernet extends HarnessBinder({
       nexysTh.xdc.addIOStandard(io, "LVCMOS25")
     }
 
-    // Active-low PHY hardware reset (Sch=ETH_RSTB, package pin U7).
-    // This pin sits in a 3.3 V bank, so it uses LVCMOS33 rather than the LVCMOS25 of the RGMII data pins.
+    // PHY reset is in a 3.3 V bank; RGMII data pins are 2.5 V.
     val phyResetIO = IOPin(harnessIO.phy_reset_n)
     nexysTh.xdc.addPackagePin(phyResetIO, "U7")
     nexysTh.xdc.addIOStandard(phyResetIO, "LVCMOS33")
@@ -122,30 +124,25 @@ class WithNexysVideoEthernet extends HarnessBinder({
     nexysTh.sdc.addClock("rgmii_rx_clk", IOPin(harnessIO.rgmii_rx_clk), 125)
     nexysTh.sdc.addGroup(clocks = Seq("rgmii_rx_clk"))
 
-    nexysTh.xdc.addRawContent(
-      "# Reset synchronization\n" +
-        "set reset_ffs [get_cells -hier -regexp \".*/(rx|tx)_rst_reg_reg\\[\\\\d\\]\" " +
-        "-filter {PARENT =~ *rgmii_phy_if_inst}]\n" +
-        "set_property ASYNC_REG TRUE $reset_ffs\n" +
-        "# Clock output ODDR\n" +
-        "set_property ASYNC_REG TRUE " +
-        "[get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]"
-    )
+    // Capture RX data directly from rgmii_rx_clk through BUFIO/IDDR.
+    // No FPGA input delay is applied.
+    val rgmiiXdcResource = "nexysvideo/ethernet-rgmii.xdc"
+    val rgmiiXdcStream = Option(Thread.currentThread.getContextClassLoader.getResourceAsStream(rgmiiXdcResource))
+      .getOrElse(throw new RuntimeException(s"Missing resource: $rgmiiXdcResource"))
+    val rgmiiXdcSource = Source.fromInputStream(rgmiiXdcStream)
+    val rgmiiXdc = try {
+      rgmiiXdcSource.mkString
+    } finally {
+      rgmiiXdcSource.close()
+    }
 
-    nexysTh.sdc.addRawConstraint(
-      "set_max_delay" +
-        " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_1_reg}]" +
-        " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
-        " -datapath_only 2.000"
-    )
-    nexysTh.sdc.addRawConstraint(
-      "set_max_delay" +
-        " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_2_reg}]" +
-        " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
-        " -datapath_only 2.000"
-    )
-    nexysTh.sdc.addRawConstraint(
-      "set_false_path -to [get_pins -of_objects $reset_ffs -filter {IS_PRESET || IS_RESET}]"
+    ElaborationArtefacts.add("nexysvideo_ethernet_rgmii.xdc", rgmiiXdc)
+    ElaborationArtefacts.add(
+      "nexysvideo_ethernet_rgmii.vivado.tcl",
+      """set rgmii_vivado_tcl [file normalize [info script]]
+        |set rgmii_xdc [string map {.nexysvideo_ethernet_rgmii.vivado.tcl .nexysvideo_ethernet_rgmii.xdc} $rgmii_vivado_tcl]
+        |add_files -quiet -norecurse -fileset [current_fileset -constrset] $rgmii_xdc
+        |""".stripMargin
     )
 })
 
