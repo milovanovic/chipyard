@@ -491,11 +491,11 @@ class EthClockSource156 extends BlackBox with HasBlackBoxInline {
       |""".stripMargin)
 }
 
-// Drives the 10G (XGMII) Ethernet peripheral for RTL simulation.
+// Drives the XGMII Ethernet peripheral for RTL simulation.
 // A single 156.25 MHz clock feeds both tx_clk and rx_clk, and the XGMII transmit buses loop straight back to the receive buses.
-// Pair with rivet.wrapper.WithEthernet10GSim.
-class WithEthernet10GLoopback extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: Ethernet10GPort, chipId: Int) => {
+// Pair with rivet.wrapper.WithEthernetXGMIISim.
+class WithEthernetXGMIILoopback extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetXGMIIPort, chipId: Int) => {
     val ethClk = Module(new EthClockSource156)
     port.io.tx_clk := ethClk.io.clk
     port.io.rx_clk := ethClk.io.clk
