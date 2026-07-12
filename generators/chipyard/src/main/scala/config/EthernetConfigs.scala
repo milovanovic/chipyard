@@ -14,6 +14,7 @@ import org.chipsalliance.cde.config.{Config}
 class EthernetRGMIILoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetRGMIILoopback ++           // sim clocks + TX->RX loopback
   new rivet.wrapper.WithEthernetRGMIISim ++                   // MAC built with target="SIM"
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)
 
@@ -24,6 +25,7 @@ class EthernetRGMIILoopbackRocketConfig extends Config(
 class EthernetGMIILoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetGMIILoopback ++           // sim clock + GMII TX->RX loopback
   new rivet.wrapper.WithEthernetGMIISim ++                   // MAC built with target="SIM"
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)
 
@@ -34,6 +36,7 @@ class EthernetGMIILoopbackRocketConfig extends Config(
 class EthernetXGMIILoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetXGMIILoopback ++            // sim clock + XGMII TX->RX loopback
   new rivet.wrapper.WithEthernetXGMIISim ++                    // MAC instantiated for sim (byte-wide)
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)
 
@@ -44,6 +47,7 @@ class EthernetXGMIILoopbackRocketConfig extends Config(
 class EthMac1GRgmiiLoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetRGMIILoopback ++          // sim clocks + TX->RX loopback (reused)
   new rivet.WithEthernetRGMIISim ++            // Chisel-native MAC, target="SIM"
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)
 
@@ -54,5 +58,6 @@ class EthMac1GRgmiiLoopbackRocketConfig extends Config(
 class EthMac1GGmiiLoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetGMIILoopback ++           // sim clock + GMII TX->RX loopback (reused)
   new rivet.WithEthernetGMIISim ++             // Chisel-native MAC, target="SIM"
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)

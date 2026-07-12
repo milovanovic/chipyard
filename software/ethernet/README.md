@@ -2,8 +2,8 @@
 
 Raw L2 Ethernet file transfer between a Linux PC and the FPGA Ethernet peripheral.
 
-The link uses EtherType `0x88B5` directly, with no IP/ARP stack. The PC sends the actual
-bytes in `tx_file.txt`; the FPGA stores them in a 64 KiB static buffer and echoes exactly
+The link uses EtherType `0x88B5` directly, with no IP/ARP stack.
+The PC sends the actual bytes in `tx_file.txt`; the FPGA stores them in a 64 KiB static buffer and echoes exactly
 the received length back. The PC verifies CRC32 before writing `rx_file.txt`.
 
 ## Build
@@ -22,6 +22,29 @@ Outputs:
 - PHY loopback: `software/ethernet/ethernet_phy_loopback.riscv`
 - PC: `software/ethernet/pc/ethernet_pc`
 
+## DMA driver and register map
+
+Frames are copied through two buffers in the 64 KiB MBUS scratchpad, then moved between memory and the MAC by the Ethernet DMA:
+
+- TX bounce buffer: `0x0800C000`, 4 KiB
+- RX bounce buffer: `0x0800D000`, 4 KiB
+- maximum transmitted or received frame: 4096 bytes
+
+The complete map is:
+
+| Base | Block | Access |
+|---|---|---|
+| `0x10060000` | Ethernet DMA CSR | 64-bit, stride 8 |
+| `0x10061000` | frame-length frontend | 64-bit, stride 8 |
+| `0x10062000` | MAC status/control | 32-bit |
+| `0x10063000` | MDIO | 32-bit |
+
+The DMA register offsets are `ENABLE 0x00`, `WATCHDOG 0x10`, `INT 0x18`, S2M descriptor `0x20..0x40`, M2S descriptor `0x48..0x68`, and `S2M_RESULT 0x90`. `S2M_RESULT[8:0]` is the actual completed beat count and bit 9 indicates that the chunk ended on stream `last`. Frontend offsets are `RX_LEN 0x00` (bit 16 valid, pop-on-read), `RX_COUNT 0x08`, `TX_LEN 0x10`, `TX_SPACE 0x18`, `INFO 0x20`, and `RX_BEATS 0x28`. `RX_BEATS` is a non-destructive count of packed 64-bit beats currently buffered for RX DMA diagnostics.
+
+The MAC status register is sticky read-to-clear. Read it once per checkpoint and cache the returned value; repeated reads clear the TX/RX event evidence.
+
+`eth_send_frame()` copies and fences the TX buffer, queues the exact byte length, then arms one or more M2S chunks of at most 256 beats. `eth_recv_frame()` arms a maximum 256-beat S2M chunk before the frame length is known; stream `last` shortens the final chunk, after which software validates the published RX length. Each chunk waits for its direction's DONE bit and a zero trigger. Completion deliberately does not use `DMA_IDLE`, because a later RX frame may already be buffered. DMA `INT` is shared by both directions and is harvested into a software shadow before it is cleared at a quiescent point.
+
 ## Run
 
 Disable NIC offloads before testing:
@@ -36,7 +59,7 @@ Run the FPGA program over UART-TSI:
 ```bash
 cd <chipyard-root>
 cd software/ethernet
-uart_tsi +tty=/dev/ttyUSB2 ./ethernet_fpga.riscv
+uart_tsi +tty=/dev/ttyUSBX ./ethernet_fpga.riscv
 ```
 
 Run the PC transfer:

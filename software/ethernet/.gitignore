@@ -1,3 +1,4 @@
-*.dump
-*.riscv
-pc/ethernet_pc
+/*.riscv
+/*.dump
+/pc/ethernet_pc
+/pc/*.txt

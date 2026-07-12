@@ -1,6 +1,6 @@
 // Shared raw-Ethernet file-transfer protocol helpers.
 
-#include "software/ethernet/protocol.h"
+#include "protocol.h"
 
 // Read a big-endian 16-bit value from protocol bytes.
 static uint16_t ethernet_read_u16(const uint8_t *buf) {

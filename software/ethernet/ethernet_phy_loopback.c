@@ -7,27 +7,69 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#ifndef PHY_LOOPBACK_SPEED_MBPS
+#define PHY_LOOPBACK_SPEED_MBPS 100
+#endif
+
+#if PHY_LOOPBACK_SPEED_MBPS == 1000
+#define PHY_LOOPBACK_BMCR_SPEED BMCR_SPEED1000
+#define PHY_LOOPBACK_MAC_SPEED 2u
+#define PHY_LOOPBACK_SPEED_NAME "1G"
+#elif PHY_LOOPBACK_SPEED_MBPS == 100
+#define PHY_LOOPBACK_BMCR_SPEED BMCR_SPEED100
+#define PHY_LOOPBACK_MAC_SPEED 1u
+#define PHY_LOOPBACK_SPEED_NAME "100M"
+#else
+#error "PHY_LOOPBACK_SPEED_MBPS must be 100 or 1000"
+#endif
+
 enum {
   kEthertype = 0x88B5,
-  kPayloadLen = 46,
-  kFrameLen = 14 + kPayloadLen,
   kMdioWaitSpins = 2000000,
-  kTxWaitSpins = 2000000,
-  kRxWaitSpins = 50000000,
+  kPhyResetSpins = 2000000,
   kPhySettle = 50000000,
+  kMacSpeedWaitSpins = 5000000,
+#ifdef ETH_DEBUG
+  kDumpBytes = 64,
+#else
+  kDumpBytes = 32,
+#endif
 };
 
-static const uint8_t kDstMac[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
-static const uint8_t kSrcMac[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
+static const int kFrameLengths[] = {60, 61, 67, 1514, 2049, 3000, 4095, 4096};
 
-static uint8_t tx_frame[kFrameLen];
-static uint8_t rx_frame[kFrameLen];
+// Keep the first two DMA beats distinctive so zero fill, lane reversal, and
+// byte shifts are immediately visible in the board diagnostic.
+static const uint8_t kDstMac[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+static const uint8_t kSrcMac[6] = {0x06, 0x67, 0x78, 0x89, 0x9a, 0xab};
+
+static uint8_t tx_frame[ETH_MAX_FRAME];
+static uint8_t rx_frame[ETH_MAX_FRAME];
+
+// Dump a bounded prefix without allowing the compiler to cache DMA-buffer reads.
+static void dump_bytes(const char *name, volatile const uint8_t *data, int length) {
+  int count = length < kDumpBytes ? length : kDumpBytes;
+  printf("[phyloop] %s (%d bytes):", name, count);
+  for (int i = 0; i < count; i++) {
+    if ((i & 7) == 0) {
+      printf("\n[phyloop]   %02d:", i);
+    }
+    printf(" %02x", (unsigned)data[i]);
+  }
+  printf("\n");
+}
 
 // Print a compact snapshot of MAC and MDIO state.
 static void print_status_snapshot(const char *where) {
-  printf("[phyloop] %s: mdio_stat=0x%lx tx_count=%lu rx_count=%lu eth_status=0x%lx\n",
-         where, (unsigned long)mdio_r32(MDIO_STAT), (unsigned long)eth_r32(ETH_TX_COUNT),
-         (unsigned long)eth_r32(ETH_RX_COUNT), (unsigned long)eth_status());
+  printf("[phyloop] %s: mdio_stat=0x%lx tx_space=%lu rx_count=%lu "
+         "dma_int=0x%lx s2m=%lu m2s=%lu eth_status=0x%lx\n",
+         where, (unsigned long)mdio_r32(MDIO_STAT),
+         (unsigned long)eth_r64(ETH_TX_SPACE),
+         (unsigned long)eth_r64(ETH_RX_COUNT),
+         (unsigned long)eth_r64(ETH_DMA_INT),
+         (unsigned long)eth_r64(ETH_DMA_S2M_TRIGGER),
+         (unsigned long)eth_r64(ETH_DMA_M2S_TRIGGER),
+         (unsigned long)eth_status());
 }
 
 // Wait for the MDIO master to become idle with a bounded timeout.
@@ -77,6 +119,25 @@ static int mdio_rmw_bounded(int phy, int reg, uint16_t clear, uint16_t set,
   return mdio_write_bounded(phy, reg, value, where);
 }
 
+// Reset the PHY and wait for the self-clearing BMCR reset bit.
+// The RTL8211E requires a reset/restart/power transition before speed and duplex writes take effect.
+static int phy_reset_bounded(int phy) {
+  if (mdio_write_bounded(phy, MII_BMCR, BMCR_RESET, "reset PHY") < 0) {
+    return -1;
+  }
+  for (long spin = 0; spin < kPhyResetSpins; spin++) {
+    uint16_t bmcr = 0;
+    if (mdio_read_bounded(phy, MII_BMCR, &bmcr, "wait PHY reset") < 0) {
+      return -1;
+    }
+    if ((bmcr & BMCR_RESET) == 0) {
+      return 0;
+    }
+  }
+  printf("[phyloop] timeout: PHY reset did not complete\n");
+  return -1;
+}
+
 // Scan the MDIO bus for an RTL8211E PHY.
 static int rtl8211e_find_phy_bounded(uint16_t *id1_out, uint16_t *id2_out) {
   for (int phy = 0; phy < 32; phy++) {
@@ -110,11 +171,14 @@ static int rtl8211e_set_rgmii_delay_bounded(int phy, int rx, int tx) {
   return 0;
 }
 
-// Put the PHY into forced gigabit near-end loopback.
+// Put the PHY into forced PCS loopback at the compile-time selected speed.
 static int phy_enable_loopback_bounded(int phy) {
-  if (mdio_write_bounded(phy, MII_CTRL1000, CTRL1000_MANUAL | CTRL1000_MASTER,
-                         "force gigabit master") < 0 ||
-      mdio_write_bounded(phy, MII_BMCR, BMCR_LOOPBACK | BMCR_SPEED1000 | BMCR_FULLDPLX,
+  if (mdio_rmw_bounded(phy, MII_CTRL1000,
+                       CTRL1000_MANUAL | CTRL1000_MASTER, CTRL1000_FULL,
+                       "clear gigabit master override") < 0 ||
+      mdio_write_bounded(phy, MII_BMCR,
+                         BMCR_LOOPBACK | PHY_LOOPBACK_BMCR_SPEED | BMCR_FULLDPLX |
+                             BMCR_ANRESTART,
                          "enable PHY loopback") < 0) {
     return -1;
   }
@@ -143,7 +207,9 @@ static int setup_phy_loopback(int *phy_out) {
   }
   printf("[phyloop] RTL8211E at phy=%d id=%04x%04x\n", phy, id1, id2);
 
-  if (rtl8211e_set_rgmii_delay_bounded(phy, /*rx=*/1, /*tx=*/0) < 0 ||
+  // Reset first because it may restore extended-page delay registers.
+  if (phy_reset_bounded(phy) < 0 ||
+      rtl8211e_set_rgmii_delay_bounded(phy, /*rx=*/1, /*tx=*/0) < 0 ||
       phy_enable_loopback_bounded(phy) < 0) {
     return -1;
   }
@@ -161,70 +227,33 @@ static int setup_phy_loopback(int *phy_out) {
   }
   printf("[phyloop] loopback enabled, bmcr=%04x bmsr=%04x physr=%04x link=%u\n",
          bmcr, bmsr, physr, (bmsr & BMSR_LSTATUS) ? 1u : 0u);
+  const uint16_t mode_mask =
+      BMCR_LOOPBACK | BMCR_SPEED100 | BMCR_SPEED1000 | BMCR_FULLDPLX;
+  const uint16_t expected_mode =
+      BMCR_LOOPBACK | PHY_LOOPBACK_BMCR_SPEED | BMCR_FULLDPLX;
+  if ((bmcr & mode_mask) != expected_mode) {
+    printf("[phyloop] invalid loopback BMCR=0x%04x\n", bmcr);
+    phy_disable_loopback_bounded(phy);
+    return -1;
+  }
   *phy_out = phy;
   return 0;
 }
 
-// Send one Ethernet frame through the MAC with bounded TX waits.
-static int eth_send_frame_bounded(const uint8_t *buf, int len) {
-  for (int i = 0; i < len; i++) {
-    for (long spin = 0; eth_r32(ETH_TX_COUNT) >= ETH_TX_QUEUE_DEPTH; spin++) {
-      if (spin >= kTxWaitSpins) {
-        printf("[phyloop] timeout: TX queue full before byte %d/%d\n", i, len);
-        print_status_snapshot("tx full");
-        return -1;
-      }
-    }
-    if (i == len - 1) {
-      eth_w32(ETH_TX_LAST, buf[i]);
-    } else {
-      eth_w32(ETH_TX_DATA, buf[i]);
-    }
-  }
-
-  for (long spin = 0; eth_r32(ETH_TX_COUNT) != 0; spin++) {
-    if (spin >= kTxWaitSpins) {
-      printf("[phyloop] timeout: TX queue did not drain after frame write\n");
-      print_status_snapshot("tx drain");
-      return -1;
-    }
-  }
-  return 0;
-}
-
-// Receive one Ethernet frame through the MAC with bounded RX waits.
-static int eth_recv_frame_bounded(uint8_t *buf, int max_len, int *rx_len) {
-  int n = 0;
-  while (true) {
-    for (long spin = 0; eth_r32(ETH_RX_COUNT) == 0; spin++) {
-      if (spin >= kRxWaitSpins) {
-        printf("[phyloop] timeout: RX queue empty while reading byte %d\n", n);
-        print_status_snapshot("rx wait");
-        return -1;
-      }
-    }
-
-    uint32_t word = eth_r32(ETH_RX_DATA);
-    if (n < max_len) {
-      buf[n] = (uint8_t)(word & 0xffu);
-    }
-    n++;
-    if ((word >> 8) & 0x1u) {
-      *rx_len = n;
+// Wait for the MAC's RGMII clock detector to observe the selected speed.
+static int wait_for_mac_speed(void) {
+  for (long spin = 0; spin < kMacSpeedWaitSpins; spin++) {
+    if (eth_link_speed() == PHY_LOOPBACK_MAC_SPEED) {
       return 0;
     }
   }
+  printf("[phyloop] timeout: MAC did not detect %s, status=0x%lx\n",
+         PHY_LOOPBACK_SPEED_NAME, (unsigned long)eth_status());
+  return -1;
 }
 
-// Fill the loopback payload with a deterministic byte pattern.
-static void fill_payload(uint8_t payload[kPayloadLen]) {
-  for (int i = 0; i < kPayloadLen; i++) {
-    payload[i] = (uint8_t)(0xa0 + i);
-  }
-}
-
-// Build the fixed Ethernet frame used by the PHY loopback test.
-static int build_test_frame(uint8_t frame[kFrameLen], const uint8_t payload[kPayloadLen]) {
+// Build a deterministic Ethernet frame for one test case.
+static int build_test_frame(uint8_t frame[ETH_MAX_FRAME], int length, int case_index) {
   int n = 0;
   for (int i = 0; i < 6; i++) {
     frame[n++] = kDstMac[i];
@@ -234,17 +263,27 @@ static int build_test_frame(uint8_t frame[kFrameLen], const uint8_t payload[kPay
   }
   frame[n++] = (uint8_t)(kEthertype >> 8);
   frame[n++] = (uint8_t)(kEthertype & 0xffu);
-  for (int i = 0; i < kPayloadLen; i++) {
-    frame[n++] = payload[i];
+  while (n < length) {
+    frame[n] = (uint8_t)(0x5a + n * 29 + case_index * 17);
+    n++;
   }
   return n;
 }
 
 // Send the deterministic loopback test frame.
-static int send_test_frame(const uint8_t payload[kPayloadLen], int *tx_len) {
-  *tx_len = build_test_frame(tx_frame, payload);
-  printf("[phyloop] tx frame len=%d\n", *tx_len);
-  return eth_send_frame_bounded(tx_frame, *tx_len);
+static int send_test_frame(int length, int case_index) {
+  int tx_len = build_test_frame(tx_frame, length, case_index);
+  printf("[phyloop] case=%d tx len=%d\n", case_index, tx_len);
+  if (tx_len != length) {
+    return -1;
+  }
+  dump_bytes("TX application", tx_frame, tx_len);
+  if (eth_send_frame_bounded(tx_frame, tx_len) < 0) {
+    return -1;
+  }
+  dump_bytes("TX DMA buffer",
+             (volatile const uint8_t *)(uintptr_t)ETH_DMA_TX_BUF, tx_len);
+  return 0;
 }
 
 // Receive the looped-back test frame and capture MAC status.
@@ -254,43 +293,48 @@ static int receive_test_frame(int *rx_len, uint32_t *status) {
   }
   *status = eth_status();
   printf("[phyloop] rx len=%d status=0x%lx\n", *rx_len, (unsigned long)*status);
+  dump_bytes("RX DMA buffer",
+             (volatile const uint8_t *)(uintptr_t)ETH_DMA_RX_BUF, *rx_len);
+  dump_bytes("RX application", rx_frame, *rx_len);
   return 0;
 }
 
-// Verify a byte range in the received frame.
-static int verify_bytes(const char *name, int offset, const uint8_t *expected, int len) {
-  for (int i = 0; i < len; i++) {
-    if (rx_frame[offset + i] != expected[i]) {
-      printf("[phyloop] FAIL %s[%d]=0x%02x exp 0x%02x\n", name, i,
-             rx_frame[offset + i], expected[i]);
+// Verify the complete received frame and report RX status warnings.
+static int verify_frame(int rx_len, int tx_len, uint32_t status) {
+  if (rx_len != tx_len) {
+    printf("[phyloop] FAIL rx length %d != %d\n", rx_len, tx_len);
+    return -1;
+  }
+  for (int i = 0; i < tx_len; i++) {
+    if (rx_frame[i] != tx_frame[i]) {
+      printf("[phyloop] FAIL byte[%d]=0x%02x exp 0x%02x\n", i,
+             rx_frame[i], tx_frame[i]);
       return -1;
     }
-  }
-  return 0;
-}
-
-// Verify the received frame contents and report RX status warnings.
-static int verify_frame(int rx_len, int tx_len, const uint8_t payload[kPayloadLen],
-                        uint32_t status) {
-  if (rx_len < tx_len) {
-    printf("[phyloop] FAIL short rx %d < %d\n", rx_len, tx_len);
-    return -1;
-  }
-  if (verify_bytes("dst", 0, kDstMac, 6) < 0 ||
-      verify_bytes("src", 6, kSrcMac, 6) < 0 ||
-      verify_bytes("payload", 14, payload, kPayloadLen) < 0) {
-    return -1;
-  }
-  if (rx_frame[12] != (uint8_t)(kEthertype >> 8) ||
-      rx_frame[13] != (uint8_t)(kEthertype & 0xffu)) {
-    printf("[phyloop] FAIL ethertype 0x%02x%02x\n", rx_frame[12], rx_frame[13]);
-    return -1;
   }
 
   uint32_t error_bits = ETH_ST_RX_ERR_BAD_FRAME | ETH_ST_RX_ERR_BAD_FCS |
                         ETH_ST_RX_FIFO_OVERFLOW;
   if ((status & error_bits) != 0) {
     printf("[phyloop] WARN rx error/overflow bits: 0x%lx\n", (unsigned long)status);
+  }
+  return 0;
+}
+
+// Run all boundary cases through the real MAC/PHY/DMA loopback path.
+static int run_frame_tests(void) {
+  int frame_count = (int)(sizeof(kFrameLengths) / sizeof(kFrameLengths[0]));
+
+  for (int case_index = 0; case_index < frame_count; case_index++) {
+    int tx_len = kFrameLengths[case_index];
+    int rx_len = 0;
+    uint32_t status = 0;
+    if (send_test_frame(tx_len, case_index) < 0 ||
+        receive_test_frame(&rx_len, &status) < 0 ||
+        verify_frame(rx_len, tx_len, status) < 0) {
+      return -1;
+    }
+    printf("[phyloop] case=%d PASS len=%d\n", case_index, tx_len);
   }
   return 0;
 }
@@ -307,15 +351,22 @@ int main(void) {
   }
 
   eth_init();
-  uint8_t payload[kPayloadLen];
-  fill_payload(payload);
-
-  int tx_len = 0;
-  int rx_len = 0;
-  uint32_t status = 0;
-  int ok = send_test_frame(payload, &tx_len) == 0 &&
-           receive_test_frame(&rx_len, &status) == 0 &&
-           verify_frame(rx_len, tx_len, payload, status) == 0;
+  printf("[phyloop] frontend=0x%lx tx_buf=0x%lx rx_buf=0x%lx\n",
+         (unsigned long)eth_r64(ETH_FRONTEND_INFO),
+         (unsigned long)ETH_DMA_TX_BUF, (unsigned long)ETH_DMA_RX_BUF);
+  if (eth_r64(ETH_RX_COUNT) != 0) {
+    printf("[phyloop] stale RX frames present after init; reset the target\n");
+    phy_disable_loopback_bounded(phy);
+    printf("LOOPBACK FAIL\n");
+    return 1;
+  }
+  if (wait_for_mac_speed() < 0) {
+    phy_disable_loopback_bounded(phy);
+    printf("LOOPBACK FAIL\n");
+    return 1;
+  }
+  printf("[phyloop] MAC detected %s\n", PHY_LOOPBACK_SPEED_NAME);
+  int ok = run_frame_tests() == 0;
 
   phy_disable_loopback_bounded(phy);
 
