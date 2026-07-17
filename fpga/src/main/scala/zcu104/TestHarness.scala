@@ -11,7 +11,7 @@ import org.chipsalliance.cde.config.Parameters
 import org.chipsalliance.diplomacy.bundlebridge.BundleBridgeSource
 import org.chipsalliance.diplomacy.lazymodule._
 import sifive.blocks.devices.spi.{PeripherySPIKey, SPIPortIO}
-import sifive.blocks.devices.uart.{PeripheryUARTKey, UARTPortIO}
+import sifive.blocks.devices.uart.{PeripheryUARTKey, UARTParams, UARTPortIO}
 import sifive.fpgashells.clocks._
 import sifive.fpgashells.ip.xilinx.{IBUF, PowerOnResetFPGAOnly}
 import sifive.fpgashells.shell._
@@ -30,7 +30,7 @@ class ZCU104FPGATestHarness(override implicit val p: Parameters) extends ZCU104S
   val jtag         = Overlay(JTAGDebugOverlayKey, new JTAGDebugZCU104ShellPlacer(this, JTAGDebugShellInput(location = jtag_location)))
   val jtagBScan    = Overlay(JTAGDebugBScanOverlayKey, new JTAGDebugBScanZCU104ShellPlacer(this, JTAGDebugBScanShellInput()))
   val sys_clock2   = Overlay(ClockInputOverlayKey, new SysClockZCU104ShellPlacer(this, ClockInputShellInput()))
-  override val ddr = Overlay(DDROverlayKey, new DDRZCU104ShellPlacer(this, DDRShellInput()))
+  override val ddr = if (p(ZCU104ShellDDR)) Some(Overlay(DDROverlayKey, new DDRZCU104ShellPlacer(this, DDRShellInput()))) else None
 
 // DOC include start: ClockOverlay
   // place all clocks in the shell
@@ -55,23 +55,29 @@ class ZCU104FPGATestHarness(override implicit val p: Parameters) extends ZCU104S
   /*** UART ***/
   // DOC include start: UartOverlay
   // 1st UART goes to the ZCU104 dedicated UART
-  val io_uart_bb = BundleBridgeSource(() => (new UARTPortIO(dp(PeripheryUARTKey).head)))
+  // UART-TSI use this bundle bridge to reach the physical PL UART2 overlay.
+  val io_uart_bb = BundleBridgeSource(() => new UARTPortIO(dp(PeripheryUARTKey).headOption.getOrElse(UARTParams(0))))
   dp(UARTOverlayKey).head.place(UARTDesignInput(io_uart_bb))
   // DOC include end: UartOverlay
 
   /*** SPI ***/
   // 1st SPI goes to the ZCU104 SDIO port
-  val io_spi_bb = BundleBridgeSource(() => (new SPIPortIO(dp(PeripherySPIKey).head)))
-  dp(SPIOverlayKey).head.place(SPIDesignInput(dp(PeripherySPIKey).head, io_spi_bb))
+  val io_spi_bb = dp(PeripherySPIKey).headOption.map { spiParams =>
+    val bridge = BundleBridgeSource(() => new SPIPortIO(spiParams))
+    dp(SPIOverlayKey).head.place(SPIDesignInput(spiParams, bridge))
+    bridge
+  }
 
-  /*** DDR ***/
-  val ddrNode = dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLL)).overlayOutput.ddr
-  // connect 1 mem. channel to the FPGA DDR
-  val ddrClient = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
+  /*** Optional DDR ***/
+  val ddrNode = if (p(ZCU104ShellDDR)) Some(dp(DDROverlayKey).head
+    .place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLL)).overlayOutput.ddr) else None
+  val ddrClient = if (p(ZCU104ShellDDR)) Some(TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
     name = "chip_ddr",
     sourceId = IdRange(0, 1 << dp(ExtTLMem).get.master.idBits)
-  )))))
-  ddrNode := TLWidthWidget(dp(ExtTLMem).get.master.beatBytes) := ddrClient
+  )))))) else None
+  if (p(ZCU104ShellDDR)) {
+    ddrNode.get := TLWidthWidget(dp(ExtTLMem).get.master.beatBytes) := ddrClient.get
+  }
 
   /*** JTAG ***/
   val jtagPlacedOverlay = dp(JTAGDebugOverlayKey).head.place(JTAGDebugDesignInput())

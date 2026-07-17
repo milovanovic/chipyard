@@ -12,17 +12,24 @@ class WithUART extends HarnessBinder({
   }
 })
 
+/** Connect UART-TSI to PL UART2; the corresponding config disables UART. */
+class WithZCU104UARTTSI extends HarnessBinder({
+  case (th: ZCU104FPGATestHarnessImp, port: UARTTSIPort, chipId: Int) => {
+    th.zcu104Outer.io_uart_bb.bundle <> port.io.uart
+  }
+})
+
 /*** SPI ***/
 class WithSPISDCard extends HarnessBinder({
   case (th: ZCU104FPGATestHarnessImp, port: SPIPort, chipId: Int) => {
-    th.zcu104Outer.io_spi_bb.bundle <> port.io
+    th.zcu104Outer.io_spi_bb.get.bundle <> port.io
   }
 })
 
 /*** Experimental DDR ***/
 class WithDDRMem extends HarnessBinder({
   case (th: ZCU104FPGATestHarnessImp, port: TLMemPort, chipId: Int) => {
-    val bundles = th.zcu104Outer.ddrClient.out.map(_._1)
+    val bundles = th.zcu104Outer.ddrClient.get.out.map(_._1)
     val ddrClientBundle = Wire(new HeterogeneousBag(bundles.map(_.cloneType)))
     bundles.zip(ddrClientBundle).foreach { case (bundle, io) => bundle <> io }
     ddrClientBundle <> port.io

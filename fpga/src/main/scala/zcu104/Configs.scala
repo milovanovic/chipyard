@@ -55,6 +55,28 @@ class RocketZCU104Config extends Config(
   new WithZCU104Tweaks ++
   new chipyard.RocketConfig
 )
+
+/** UART-TSI ZCU104 */
+class WithZCU104NoDDRTweaks extends Config(
+  new WithZCU104UARTTSI ++
+  new sifive.fpgashells.shell.xilinx.WithNoZCU104ShellDDR ++
+  new testchipip.tsi.WithUARTTSIClient ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new chipyard.config.WithNoUART ++
+  new chipyard.config.WithNoDebug ++
+  new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
+  new chipyard.clocking.WithPassthroughClockGenerator ++
+  new chipyard.config.WithUniformBusFrequencies(50) ++
+  new WithFPGAFrequency(50) ++
+  new freechips.rocketchip.subsystem.WithoutTLMonitors
+)
+
+/** RV64 with a 256 KiB DTIM at 0x8000_0000 */
+class RocketZCU104NoDDRConfig extends Config(
+  new WithZCU104NoDDRTweaks ++
+  new freechips.rocketchip.rocket.WithL1DCacheSets(4096) ++
+  new chipyard.ScratchpadOnlyRocketConfig
+)
 // DOC include end: AbstractZCU104 and Rocket
 
 class BoomZCU104Config extends Config(
