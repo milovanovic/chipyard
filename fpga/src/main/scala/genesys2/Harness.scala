@@ -57,7 +57,7 @@ class Genesys2Harness(override implicit val p: Parameters) extends Genesys2Shell
     )
   ))))) else None
   val harnessETHPLLNode = if (dp(EthernetRGMIIKey).isDefined) Some(harnessETHPLL.get()) else None
-  val ethPLLClock = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSourceNode(freqMHz = 100)) else None
+  val ethPLLClock = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSourceNode(freqMHz = 200)) else None
   val ethClock_125 = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSinkNode(freqMHz = 125)) else None
   val ethClock_125_90 = if (dp(EthernetRGMIIKey).isDefined) Some(ClockSinkNode(freqMHz = 125, phaseDeg = 90)) else None
   val ethWrangler = if (dp(EthernetRGMIIKey).isDefined) Some(LazyModule(new ResetWrangler())) else None

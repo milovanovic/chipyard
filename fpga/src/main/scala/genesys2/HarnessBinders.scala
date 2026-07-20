@@ -4,10 +4,15 @@ package chipyard.fpga.genesys2
 import chipyard.harness._
 import chipyard.iobinders._
 import chisel3._
+import chisel3.experimental.{Analog, attach}
+import freechips.rocketchip.util.ElaborationArtefacts
 import org.chipsalliance.diplomacy.lazymodule.LazyRawModuleImp
 import org.chipsalliance.diplomacy.nodes.HeterogeneousBag
+import sifive.fpgashells.ip.xilinx.IOBUF
 import sifive.fpgashells.shell._
 import testchipip.serdes._
+
+import scala.io.Source
 
 class WithGenesys2UARTTSI(uartBaudRate: BigInt = 115200) extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort, chipId: Int) => {
@@ -108,33 +113,55 @@ class WithGenesys2Ethernet extends HarnessBinder({
       genesys2Th.xdc.addIOStandard(io, "LVCMOS15")
     }
 
+    // PHY reset is in a 3.3 V bank; RGMII data pins are 1.5 V.
+    val phyResetIO = IOPin(io.phy_reset_n)
+    genesys2Th.xdc.addPackagePin(phyResetIO, "AH24")
+    genesys2Th.xdc.addIOStandard(phyResetIO, "LVCMOS33")
+
     // Ethernet clock
     genesys2Th.sdc.addClock("rgmii_rx_clk", IOPin(io.rgmii_rx_clk), 125)
     genesys2Th.sdc.addGroup(clocks = Seq("rgmii_rx_clk"))
 
-    genesys2Th.xdc.addRawContent(
-      "# Reset synchronization\n" +
-        "set reset_ffs [get_cells -hier -regexp \".*/(rx|tx)_rst_reg_reg\\[\\\\d\\]\" " +
-        "-filter {PARENT =~ *rgmii_phy_if_inst}]\n" +
-        "set_property ASYNC_REG TRUE $reset_ffs\n" +
-        "# Clock output ODDR\n" +
-        "set_property ASYNC_REG TRUE " +
-        "[get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]"
-    )
+    val rgmiiXdcResource = "genesys2/ethernet-rgmii.xdc"
+    val rgmiiXdcStream = Option(Thread.currentThread.getContextClassLoader.getResourceAsStream(rgmiiXdcResource))
+      .getOrElse(throw new RuntimeException(s"Missing resource: $rgmiiXdcResource"))
+    val rgmiiXdcSource = Source.fromInputStream(rgmiiXdcStream)
+    val rgmiiXdc = try {
+      rgmiiXdcSource.mkString
+    } finally {
+      rgmiiXdcSource.close()
+    }
 
-    genesys2Th.sdc.addRawConstraint(
-      "set_max_delay" +
-        " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_1_reg}]" +
-        " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
-        " -datapath_only 2.000"
+    ElaborationArtefacts.add("genesys2_ethernet_rgmii.xdc", rgmiiXdc)
+    ElaborationArtefacts.add(
+      "genesys2_ethernet_rgmii.vivado.tcl",
+      """set rgmii_vivado_tcl [file normalize [info script]]
+        |set rgmii_xdc [string map {.genesys2_ethernet_rgmii.vivado.tcl .genesys2_ethernet_rgmii.xdc} $rgmii_vivado_tcl]
+        |add_files -quiet -norecurse -fileset [current_fileset -constrset] $rgmii_xdc
+        |""".stripMargin
     )
-    genesys2Th.sdc.addRawConstraint(
-      "set_max_delay" +
-        " -from [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/rgmii_tx_clk_2_reg}]" +
-        " -to [get_cells -hierarchical -filter {NAME =~ *rgmii_phy_if_inst/clk_oddr_inst/oddr[0].oddr_inst}]" +
-        " -datapath_only 2.000"
-    )
-    genesys2Th.sdc.addRawConstraint(
-      "set_false_path -to [get_pins -of_objects $reset_ffs -filter {IS_PRESET || IS_RESET}]"
-    )
+})
+
+// MDIO PHY-management pins.
+// MDC is a plain output (Sch=eth_mdc, AF12).
+// MDIO is a bidirectional open-drain pad driven through an IOBUF (Sch=eth_mdio, AG12).
+class WithGenesys2MDIO extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetMDIOPort, chipId: Int) =>
+    val genesys2Th = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[Genesys2Harness]
+
+    val mdcIO = IO(Output(Bool())).suggestName("eth_mdc")
+    mdcIO := port.io.mdc
+    val mdcPin = IOPin(mdcIO)
+    genesys2Th.xdc.addPackagePin(mdcPin, "AF12")
+    genesys2Th.xdc.addIOStandard(mdcPin, "LVCMOS15")
+
+    val mdioPad = IO(Analog(1.W)).suggestName("eth_mdio")
+    val iobuf = Module(new IOBUF())
+    iobuf.io.I := port.io.mdio_o
+    iobuf.io.T := port.io.mdio_t
+    port.io.mdio_i := iobuf.io.O
+    attach(iobuf.io.IO, mdioPad)
+    val mdioPin = IOPin(mdioPad)
+    genesys2Th.xdc.addPackagePin(mdioPin, "AG12")
+    genesys2Th.xdc.addIOStandard(mdioPin, "LVCMOS15")
 })

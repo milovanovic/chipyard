@@ -12,8 +12,6 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // DOC include start: WithGenesys2Tweaks and Rocket
 class WithGenesys2Tweaks(freqMHz: Double = 50) extends Config(
-  new rivet.wrapper.WithEthernetRGMII ++
-  new WithGenesys2Ethernet ++
   new WithGenesys2UARTTSI ++
   new WithGenesys2DDRTL ++
   new WithNoDesignKey ++
@@ -34,6 +32,33 @@ class RocketGenesys2Config extends Config(
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
 // DOC include end: WithGenesys2Tweaks and Rocket
+
+class WithGenesys2EthernetTweaks extends Config(
+  new WithGenesys2Ethernet ++
+  new rivet.mdio.WithEthernetMDIO ++
+  new WithGenesys2MDIO)
+
+class WithGenesys2VerilogEthTweaks(freqMHz: Double = 50) extends Config(
+  new rivet.wrapper.WithEthernetRGMII ++
+  new WithGenesys2EthernetTweaks ++
+  new WithGenesys2Tweaks(freqMHz))
+
+class RocketGenesys2VerilogEthConfig extends Config(
+  new WithGenesys2VerilogEthTweaks ++
+  new chipyard.config.WithBroadcastManager ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new chipyard.RocketConfig)
+
+class WithGenesys2ChiselEthTweaks(freqMHz: Double = 50) extends Config(
+  new rivet.WithEthernetRGMII ++
+  new WithGenesys2EthernetTweaks ++
+  new WithGenesys2Tweaks(freqMHz))
+
+class RocketGenesys2ChiselEthConfig extends Config(
+  new WithGenesys2ChiselEthTweaks ++
+  new chipyard.config.WithBroadcastManager ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new chipyard.RocketConfig)
 
 // DOC include start: WithTinyGenesys2Tweaks and Rocket
 class WithTinyGenesys2Tweaks extends Config(
@@ -64,4 +89,3 @@ class BringupGenesys2Config extends Config(
   new WithGenesys2SerialTLToGPIO ++
   new WithGenesys2Tweaks(freqMHz = 75) ++
   new chipyard.ChipBringupHostConfig)
-
