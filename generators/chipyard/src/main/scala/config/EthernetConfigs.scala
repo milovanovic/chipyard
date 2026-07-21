@@ -1,6 +1,6 @@
 package chipyard
 
-import org.chipsalliance.cde.config.{Config}
+import org.chipsalliance.cde.config.Config
 
 // ----------------
 // Ethernet Configs
@@ -58,6 +58,46 @@ class EthMac1GRgmiiLoopbackRocketConfig extends Config(
 class EthMac1GGmiiLoopbackRocketConfig extends Config(
   new chipyard.harness.WithEthernetGMIILoopback ++           // sim clock + GMII TX->RX loopback (reused)
   new rivet.WithEthernetGMIISim ++             // Chisel-native MAC, target="SIM"
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+/** Verilog RGMII Ethernet connected to a file-backed peer in the testbench. */
+class EthernetRGMIIFileTransferRocketConfig extends Config(
+  new chipyard.harness.WithEthernetRGMIIFileModel ++
+  new rivet.wrapper.WithEthernetRGMIISim ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+/** Verilog GMII Ethernet connected to a file-backed peer in the testbench. */
+class EthernetGMIIFileTransferRocketConfig extends Config(
+  new chipyard.harness.WithEthernetGMIIFileModel ++
+  new rivet.wrapper.WithEthernetGMIISim ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+/** Verilog XGMII Ethernet connected to a file-backed peer in the testbench. */
+class EthernetXGMIIFileTransferRocketConfig extends Config(
+  new chipyard.harness.WithEthernetXGMIIFileModel ++
+  new rivet.wrapper.WithEthernetXGMIISim ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+/** Chisel-native RGMII Ethernet connected to a file-backed peer in the testbench. */
+class EthMac1GRgmiiFileTransferRocketConfig extends Config(
+  new chipyard.harness.WithEthernetRGMIIFileModel ++
+  new rivet.WithEthernetRGMIISim ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+/** Chisel-native GMII Ethernet connected to a file-backed peer in the testbench. */
+class EthMac1GGmiiFileTransferRocketConfig extends Config(
+  new chipyard.harness.WithEthernetGMIIFileModel ++
+  new rivet.WithEthernetGMIISim ++
   new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)

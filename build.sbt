@@ -552,7 +552,13 @@ lazy val ethernet = freshProject("ethernet", file("./generators/ethernet"))
   )
   .settings(commonSettings)
   .settings(
-    Compile / resourceDirectory := baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "rtl",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "lib" / "axis" / "rtl",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "vsrc" / "mdio" / "rtl"
+    Compile / resourceDirectory :=
+      baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "rtl",
+    Compile / unmanagedResourceDirectories +=
+      baseDirectory.value / "main" / "resources" / "vsrc" / "ethernet" / "lib" / "axis" / "rtl",
+    Compile / unmanagedResourceDirectories +=
+      baseDirectory.value / "main" / "resources" / "vsrc" / "mdio" / "rtl",
+    Compile / unmanagedResourceDirectories +=
+      baseDirectory.value / "main" / "resources" / "vsrc" / "host",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "main" / "resources" / "csrc"
   )
