@@ -87,5 +87,7 @@ class TinyRocketGenesys2Config extends Config(
 
 class BringupGenesys2Config extends Config(
   new WithGenesys2SerialTLToGPIO ++
-  new WithGenesys2Tweaks(freqMHz = 75) ++
+  new WithGenesys2Tweaks(freqMHz = 50) ++
+  new testchipip.serdes.WithSerialTLPHYParams(
+    testchipip.serdes.DecoupledInternalSyncSerialPhyParams(freqMHz = 50)) ++
   new chipyard.ChipBringupHostConfig)

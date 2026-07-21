@@ -79,7 +79,12 @@ class WithNexysVideoSerialTLToGPIO extends HarnessBinder({
           }}
         }
 
-        nexysTh.sdc.addClock("ser_tl_clock", clkIO, 100)
+        val serialTLFreqMHz = port.params.phyParams match {
+          case p: DecoupledInternalSyncSerialPhyParams => p.freqMHz.toDouble
+          case p: CreditedSourceSyncSerialPhyParams    => p.freqMHz.toDouble
+          case _: DecoupledExternalSyncSerialPhyParams => 100.0
+        }
+        nexysTh.sdc.addClock("ser_tl_clock", clkIO, serialTLFreqMHz)
         nexysTh.sdc.addGroup(pins = Seq(clkIO))
         nexysTh.xdc.clockDedicatedRouteFalse(clkIO)
       }

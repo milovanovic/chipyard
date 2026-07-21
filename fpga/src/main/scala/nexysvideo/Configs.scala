@@ -87,5 +87,7 @@ class TinyRocketNexysVideoConfig extends Config(
 
 class BringupNexysVideoConfig extends Config(
   new WithNexysVideoSerialTLToGPIO ++
-  new WithNexysVideoTweaks(freqMHz = 75) ++
+  new WithNexysVideoTweaks(freqMHz = 50) ++
+  new testchipip.serdes.WithSerialTLPHYParams(
+    testchipip.serdes.DecoupledInternalSyncSerialPhyParams(freqMHz = 50)) ++
   new chipyard.ChipBringupHostConfig)

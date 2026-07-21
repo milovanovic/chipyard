@@ -79,7 +79,12 @@ class WithGenesys2SerialTLToGPIO extends HarnessBinder({
           }
         }
 
-        genesys2Th.sdc.addClock("ser_tl_clock", clkIO, 100)
+        val serialTLFreqMHz = port.params.phyParams match {
+          case p: DecoupledInternalSyncSerialPhyParams => p.freqMHz.toDouble
+          case p: CreditedSourceSyncSerialPhyParams    => p.freqMHz.toDouble
+          case _: DecoupledExternalSyncSerialPhyParams => 100.0
+        }
+        genesys2Th.sdc.addClock("ser_tl_clock", clkIO, serialTLFreqMHz)
         genesys2Th.sdc.addGroup(pins = Seq(clkIO))
         genesys2Th.xdc.clockDedicatedRouteFalse(clkIO)
     }
