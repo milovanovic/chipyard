@@ -18,13 +18,16 @@ CFLAGS   = -std=c11 -Os -Wall -Wextra -fno-common -fno-builtin-printf \
            -I../.. $(EXTRA_CFLAGS)
 LDFLAGS := -static -T htif.ld -Wl,--gc-sections
 
-TARGETS := ethernet_fpga.riscv ethernet_sim_loopback.riscv \
-           ethernet_phy_loopback.riscv ethernet_phy_loopback_1g.riscv
-HDRS    := mmio_config.h eth.h mdio.h rtl8211e.h protocol.h
+TARGETS := ethernet_fpga.riscv ethernet_sim_file_transfer.riscv \
+           ethernet_sim_loopback.riscv ethernet_phy_loopback.riscv \
+           ethernet_phy_loopback_1g.riscv
+HDRS    := mmio_config.h eth.h ethernet_file_echo.h mdio.h rtl8211e.h protocol.h
 
 all: $(TARGETS)
 
-ethernet_fpga.riscv:        ethernet_fpga.c protocol.c $(HDRS) htif.ld
+ethernet_fpga.riscv: ethernet_fpga.c ethernet_file_echo.c protocol.c $(HDRS) htif.ld
+ethernet_sim_file_transfer.riscv: ethernet_sim_file_transfer.c ethernet_file_echo.c \
+                                  protocol.c $(HDRS) htif.ld
 ethernet_sim_loopback.riscv: ethernet_sim_loopback.c $(HDRS) htif.ld
 ethernet_phy_loopback.riscv: ethernet_phy_loopback.c $(HDRS) htif.ld
 ethernet_phy_loopback_1g.riscv: EXTRA_CFLAGS += -DPHY_LOOPBACK_SPEED_MBPS=1000

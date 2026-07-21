@@ -18,6 +18,7 @@ make -C software/ethernet/pc
 Outputs:
 
 - FPGA: `software/ethernet/ethernet_fpga.riscv`
+- Simulation file transfer: `software/ethernet/ethernet_sim_file_transfer.riscv`
 - Simulation loopback: `software/ethernet/ethernet_sim_loopback.riscv`
 - PHY loopback: `software/ethernet/ethernet_phy_loopback.riscv`
 - PC: `software/ethernet/pc/ethernet_pc`
@@ -81,6 +82,45 @@ Verify:
 ```bash
 cmp tx_file.txt rx_file.txt
 ```
+
+## Verilator file transfer
+
+The file-transfer configurations connect a simulated Ethernet host to the DUT's physical
+RGMII, GMII, or XGMII interface. The host reads and verifies binary bytes even when the
+files use a `.txt` extension.
+
+Available configurations:
+
+- `EthernetRGMIIFileTransferRocketConfig`: Verilog RGMII MAC
+- `EthernetGMIIFileTransferRocketConfig`: Verilog GMII MAC
+- `EthernetXGMIIFileTransferRocketConfig`: Verilog XGMII MAC
+- `EthMac1GRgmiiFileTransferRocketConfig`: Chisel RGMII MAC
+- `EthMac1GGmiiFileTransferRocketConfig`: Chisel GMII MAC
+
+Build and run one configuration from the Chipyard root:
+
+```bash
+source env.sh
+make -C software/ethernet ethernet_sim_file_transfer.riscv
+make -C sims/verilator \
+  CONFIG=EthernetRGMIIFileTransferRocketConfig \
+  BINARY="$PWD/software/ethernet/ethernet_sim_file_transfer.riscv" \
+  LOADMEM=1 \
+  EXTRA_SIM_FLAGS="+ethernet-tx-file=$PWD/software/ethernet/pc/tx_file.txt \
+    +ethernet-rx-file=$PWD/software/ethernet/pc/rx_file.txt" \
+  run-binary-fast
+cmp software/ethernet/pc/tx_file.txt software/ethernet/pc/rx_file.txt
+```
+
+Both file arguments are required and should use absolute paths:
+
+- `+ethernet-tx-file=/absolute/path/to/input`
+- `+ethernet-rx-file=/absolute/path/to/output`
+
+The simulation host retries `START` while firmware boots. Once the first acknowledgement
+arrives, protocol retries and progress timeouts are bounded. It publishes the output file
+only after validating the complete echo and its CRC32. A missing argument, file error,
+malformed response, protocol error, or checksum mismatch terminates the simulation.
 
 ## Protocol
 
