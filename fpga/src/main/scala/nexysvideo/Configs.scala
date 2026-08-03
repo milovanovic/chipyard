@@ -60,6 +60,22 @@ class RocketNexysVideoChiselEthConfig extends Config(
   new freechips.rocketchip.rocket.WithCFlushEnabled ++
   new chipyard.RocketConfig)
 
+/** Nexys Video RGMII design with the Verilog UDP/IPv4/ARP offload stack. */
+class RocketNexysVideoVerilogUdpEthConfig extends Config(
+  new rivet.udp.WithEthernetRGMIIUdpOffload(rivet.udp.VerilogUdpStack) ++
+  new WithNexysVideoVerilogEthTweaks ++
+  new chipyard.config.WithBroadcastManager ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new chipyard.RocketConfig)
+
+/** Nexys Video RGMII design with the native Chisel UDP/IPv4/ARP stack. */
+class RocketNexysVideoChiselUdpEthConfig extends Config(
+  new rivet.udp.WithEthernetRGMIIUdpOffload(rivet.udp.ChiselUdpStack) ++
+  new WithNexysVideoChiselEthTweaks ++
+  new chipyard.config.WithBroadcastManager ++
+  new freechips.rocketchip.rocket.WithCFlushEnabled ++
+  new chipyard.RocketConfig)
+
 // DOC include start: WithTinyNexysVideoTweaks and Rocket
 class WithTinyNexysVideoTweaks extends Config(
   new WithNexysVideoUARTTSI ++

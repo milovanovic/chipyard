@@ -26,7 +26,12 @@ import icenet.{NicLoopback, SimNetwork}
 import chipyard._
 import chipyard.clocking.{HasChipyardPRCI}
 import chipyard.iobinders._
-import rivet.sim.{GmiiEthernetFileModel, RgmiiEthernetFileModel, XgmiiEthernetFileModel}
+import rivet.sim.GmiiEthernetFileModel
+import rivet.sim.GmiiEthernetUdpFileModel
+import rivet.sim.RgmiiEthernetFileModel
+import rivet.sim.RgmiiEthernetUdpFileModel
+import rivet.sim.XgmiiEthernetFileModel
+import rivet.sim.XgmiiEthernetUdpFileModel
 
 case object HarnessBinders extends Field[HarnessBinderFunction]({case _ => })
 
@@ -563,6 +568,78 @@ class WithEthernetXGMIIFileModel extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: EthernetXGMIIPort, chipId: Int) => {
     val ethClk = Module(new EthClockSource156)
     val peer = Module(new XgmiiEthernetFileModel(chipId))
+    val lineReset = ResetCatchAndSync(ethClk.io.clk, th.harnessBinderReset.asBool)
+
+    port.io.tx_clk := ethClk.io.clk
+    port.io.rx_clk := ethClk.io.clk
+    port.io.tx_rst := lineReset
+    port.io.rx_rst := lineReset
+    peer.io.tx_clk := ethClk.io.clk
+    peer.io.rx_clk := ethClk.io.clk
+    peer.io.tx_rst := lineReset
+    peer.io.rx_rst := lineReset
+
+    peer.io.phy.xgmii_rxd := port.io.phy.xgmii_txd
+    peer.io.phy.xgmii_rxc := port.io.phy.xgmii_txc
+    port.io.phy.xgmii_rxd := peer.io.phy.xgmii_txd
+    port.io.phy.xgmii_rxc := peer.io.phy.xgmii_txc
+  }
+})
+
+/** Connects RGMII to a UDP/IPv4 file-backed, full-duplex simulation peer. */
+class WithEthernetRGMIIUdpFileModel extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetRGMIIPort, chipId: Int) => {
+    val ethClk = Module(new EthClockSource)
+    val peer = Module(new RgmiiEthernetUdpFileModel(chipId))
+    val gtxReset = ResetCatchAndSync(ethClk.io.gtx_clk, th.harnessBinderReset.asBool)
+
+    port.io.gtx_clk := ethClk.io.gtx_clk
+    port.io.gtx_clk90 := ethClk.io.gtx_clk90
+    port.io.gtx_rst := gtxReset
+    peer.io.gtx_clk := ethClk.io.gtx_clk
+    peer.io.gtx_clk90 := ethClk.io.gtx_clk90
+    peer.io.gtx_rst := gtxReset
+
+    peer.io.phy.rgmii_rx_clk := port.io.phy.rgmii_tx_clk
+    peer.io.phy.rgmii_rxd := port.io.phy.rgmii_txd
+    peer.io.phy.rgmii_rx_ctl := port.io.phy.rgmii_tx_ctl
+    port.io.phy.rgmii_rx_clk := peer.io.phy.rgmii_tx_clk
+    port.io.phy.rgmii_rxd := peer.io.phy.rgmii_txd
+    port.io.phy.rgmii_rx_ctl := peer.io.phy.rgmii_tx_ctl
+  }
+})
+
+/** Connects GMII to a UDP/IPv4 file-backed, full-duplex simulation peer. */
+class WithEthernetGMIIUdpFileModel extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetGMIIPort, chipId: Int) => {
+    val ethClk = Module(new EthClockSource125)
+    val peer = Module(new GmiiEthernetUdpFileModel(chipId))
+    val gtxReset = ResetCatchAndSync(ethClk.io.clk, th.harnessBinderReset.asBool)
+
+    port.io.gtx_clk := ethClk.io.clk
+    port.io.gtx_rst := gtxReset
+    peer.io.gtx_clk := ethClk.io.clk
+    peer.io.gtx_rst := gtxReset
+
+    peer.io.phy.gmii_rx_clk := port.io.phy.gmii_tx_clk
+    peer.io.phy.gmii_rxd := port.io.phy.gmii_txd
+    peer.io.phy.gmii_rx_dv := port.io.phy.gmii_tx_en
+    peer.io.phy.gmii_rx_er := port.io.phy.gmii_tx_er
+    peer.io.phy.mii_tx_clk := port.io.phy.gmii_tx_clk
+
+    port.io.phy.gmii_rx_clk := peer.io.phy.gmii_tx_clk
+    port.io.phy.gmii_rxd := peer.io.phy.gmii_txd
+    port.io.phy.gmii_rx_dv := peer.io.phy.gmii_tx_en
+    port.io.phy.gmii_rx_er := peer.io.phy.gmii_tx_er
+    port.io.phy.mii_tx_clk := peer.io.phy.gmii_tx_clk
+  }
+})
+
+/** Connects XGMII to a UDP/IPv4 file-backed, full-duplex simulation peer. */
+class WithEthernetXGMIIUdpFileModel extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: EthernetXGMIIPort, chipId: Int) => {
+    val ethClk = Module(new EthClockSource156)
+    val peer = Module(new XgmiiEthernetUdpFileModel(chipId))
     val lineReset = ResetCatchAndSync(ethClk.io.clk, th.harnessBinderReset.asBool)
 
     port.io.tx_clk := ethClk.io.clk
