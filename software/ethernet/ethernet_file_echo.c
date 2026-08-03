@@ -17,6 +17,7 @@ static uint8_t file_buffer[kEthernetMaxFileSize];
 static uint8_t rx_frame[kEthernetMaxFrameLen];
 static uint8_t tx_frame[kEthernetMaxFrameLen];
 static bool verbose_logging;
+static const ethernet_file_transport_t *active_transport;
 
 // Print one service message when verbose logging is enabled.
 static void log_message(const char *format, ...) {
@@ -65,9 +66,21 @@ static void send_packet(const uint8_t dst[kEthernetMacLen],
                         const ethernet_packet_header_t *header,
                         const uint8_t *data,
                         uint32_t data_len) {
-  int frame_len = build_frame(dst, header, data, data_len);
-  if (frame_len > 0) {
-    eth_send_frame(tx_frame, frame_len);
+  if (active_transport != NULL) {
+    const size_t packet_len = kEthernetHeaderLen + (size_t)data_len;
+    if (ethernet_encode_header(tx_frame, packet_len, header) < 0) {
+      return;
+    }
+    if (data_len != 0) {
+      memcpy(tx_frame + kEthernetHeaderLen, data, data_len);
+    }
+    (void)active_transport->send(
+        active_transport->context, tx_frame, packet_len);
+  } else {
+    int frame_len = build_frame(dst, header, data, data_len);
+    if (frame_len > 0) {
+      eth_send_frame(tx_frame, frame_len);
+    }
   }
 }
 
@@ -115,7 +128,32 @@ static int recv_protocol_packet(const uint8_t *expected_src,
                                 const uint8_t **payload,
                                 uint32_t *payload_len) {
   while (true) {
-    int len = eth_recv_frame(rx_frame, sizeof(rx_frame));
+    int len;
+    size_t transport_length = 0;
+    if (active_transport != NULL) {
+      if (active_transport->receive(
+              active_transport->context, rx_frame, sizeof(rx_frame),
+              &transport_length) < 0 || transport_length > sizeof(rx_frame)) {
+        continue;
+      }
+      len = (int)transport_length;
+      if (len < kEthernetHeaderLen ||
+          ethernet_decode_header(rx_frame, (size_t)len, header) < 0) {
+        continue;
+      }
+      if (src != NULL) {
+        memset(src, 0, kEthernetMacLen);
+      }
+      if (payload != NULL) {
+        *payload = rx_frame + kEthernetHeaderLen;
+      }
+      if (payload_len != NULL) {
+        *payload_len = (uint32_t)(len - kEthernetHeaderLen);
+      }
+      return 0;
+    }
+
+    len = eth_recv_frame(rx_frame, sizeof(rx_frame));
     if (len > (int)sizeof(rx_frame)) {
       continue;
     }
@@ -366,6 +404,17 @@ static int send_file(const uint8_t peer_mac[kEthernetMacLen],
 }
 
 int ethernet_file_echo_once(bool verbose) {
+  active_transport = NULL;
+  return ethernet_file_echo_transport_once(NULL, verbose);
+}
+
+int ethernet_file_echo_transport_once(
+    const ethernet_file_transport_t *transport, bool verbose) {
+  if (transport != NULL &&
+      (transport->send == NULL || transport->receive == NULL)) {
+    return -1;
+  }
+  active_transport = transport;
   verbose_logging = verbose;
   uint8_t peer_mac[kEthernetMacLen];
   uint32_t transfer_id = 0;
@@ -373,7 +422,11 @@ int ethernet_file_echo_once(bool verbose) {
   uint32_t file_crc32 = 0;
 
   if (receive_file(peer_mac, &transfer_id, &file_size, &file_crc32) < 0) {
+    active_transport = NULL;
     return -1;
   }
-  return send_file(peer_mac, transfer_id, file_size, file_crc32);
+  const int result = send_file(
+      peer_mac, transfer_id, file_size, file_crc32);
+  active_transport = NULL;
+  return result;
 }

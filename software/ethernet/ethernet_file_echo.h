@@ -5,6 +5,8 @@
 
 #include <stdbool.h>
 
+#include "software/ethernet/ethernet_file_transport.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,6 +20,10 @@ extern "C" {
  * @return 0 after a successful echoed transfer, or -1 after a protocol error.
  */
 int ethernet_file_echo_once(bool verbose);
+
+/** Run the shared file-transfer engine over a packet transport. */
+int ethernet_file_echo_transport_once(
+    const ethernet_file_transport_t *transport, bool verbose);
 
 #ifdef __cplusplus
 }  // extern "C"

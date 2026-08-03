@@ -204,6 +204,58 @@ static inline uint32_t eth_link_speed(void) {
   return (eth_status() & ETH_ST_SPEED_MASK) >> ETH_ST_SPEED_SHIFT;
 }
 
+/** Copy a payload into the shared TX bounce buffer and acquire the DMA. */
+static inline int eth_dma_prepare_tx_bytes(
+    const uint8_t *buf, int len, int maximum_length) {
+  volatile uint8_t *bounce = (volatile uint8_t *)(uintptr_t)ETH_DMA_TX_BUF;
+
+  if (buf == NULL || len < 1 || len > maximum_length) {
+    printf("[eth] invalid TX length %d (max %d)\n", len, maximum_length);
+    return -1;
+  }
+  for (int i = 0; i < len; i++) {
+    bounce[i] = buf[i];
+  }
+  eth_dma_cache_sync();
+  if (eth_dma_clear_int_quiescent() < 0) {
+    printf("[eth] TX start while DMA active: s2m=%lu m2s=%lu\n",
+           (unsigned long)eth_r64(ETH_DMA_S2M_TRIGGER),
+           (unsigned long)eth_r64(ETH_DMA_M2S_TRIGGER));
+    return -1;
+  }
+  return 0;
+}
+
+/** Transmit the prepared TX bounce-buffer bytes through the M2S DMA. */
+static inline int eth_dma_send_prepared_bytes(int len) {
+  uint64_t beats = ETH_LEN_TO_BEATS(len);
+  uint64_t done_beats = 0;
+
+  while (done_beats < beats) {
+    uint64_t chunk = beats - done_beats;
+    if (chunk > ETH_DMA_MAX_CHUNK_BEATS) {
+      chunk = ETH_DMA_MAX_CHUNK_BEATS;
+    }
+
+    eth_w64(ETH_DMA_M2S_BASE, ETH_DMA_TX_BUF + done_beats * 8);
+    eth_w64(ETH_DMA_M2S_LENGTH, chunk - 1);
+    eth_w64(ETH_DMA_M2S_CYCLES, 0);
+    eth_w64(ETH_DMA_M2S_FIXED, 0);
+    eth_w64(ETH_DMA_M2S_TRIGGER, 1);
+    if (eth_dma_poll_direction(
+            ETH_DMA_INT_READ_DONE, ETH_DMA_M2S_TRIGGER, "TX") < 0) {
+      return -1;
+    }
+    done_beats += chunk;
+
+    if (done_beats < beats && eth_dma_clear_int_quiescent() < 0) {
+      printf("[eth] TX chunk ended with DMA still active\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
 /**
  * Transmit one L2 frame. Do not include FCS.
  *
@@ -211,24 +263,7 @@ static inline uint32_t eth_link_speed(void) {
  * @param len Frame length in bytes. Must be at least 1.
  */
 static inline int eth_send_frame_bounded(const uint8_t *buf, int len) {
-  volatile uint8_t *bounce = (volatile uint8_t *)(uintptr_t)ETH_DMA_TX_BUF;
-  uint64_t beats;
-  uint64_t done_beats = 0;
-
-  if (buf == NULL || len < 1 || len > ETH_MAX_FRAME) {
-    printf("[eth] invalid TX frame length %d (max %d)\n", len, ETH_MAX_FRAME);
-    return -1;
-  }
-
-  for (int i = 0; i < len; i++) {
-    bounce[i] = buf[i];
-  }
-  eth_dma_cache_sync();
-
-  if (eth_dma_clear_int_quiescent() < 0) {
-    printf("[eth] TX start while DMA active: s2m=%lu m2s=%lu\n",
-           (unsigned long)eth_r64(ETH_DMA_S2M_TRIGGER),
-           (unsigned long)eth_r64(ETH_DMA_M2S_TRIGGER));
+  if (eth_dma_prepare_tx_bytes(buf, len, ETH_MAX_FRAME) < 0) {
     return -1;
   }
 
@@ -241,31 +276,7 @@ static inline int eth_send_frame_bounded(const uint8_t *buf, int len) {
 
   /* Length must be visible before the first DMA beat can reach the frontend. */
   eth_w64(ETH_TX_LEN, (uint64_t)len);
-  beats = ETH_LEN_TO_BEATS(len);
-  while (done_beats < beats) {
-    uint64_t chunk = beats - done_beats;
-    if (chunk > ETH_DMA_MAX_CHUNK_BEATS) {
-      chunk = ETH_DMA_MAX_CHUNK_BEATS;
-    }
-
-    eth_w64(ETH_DMA_M2S_BASE, ETH_DMA_TX_BUF + done_beats * 8);
-    eth_w64(ETH_DMA_M2S_LENGTH, chunk - 1);
-    eth_w64(ETH_DMA_M2S_CYCLES, 0);
-    eth_w64(ETH_DMA_M2S_FIXED, 0);
-    eth_w64(ETH_DMA_M2S_TRIGGER, 1);
-    if (eth_dma_poll_direction(ETH_DMA_INT_READ_DONE,
-                               ETH_DMA_M2S_TRIGGER, "TX") < 0) {
-      return -1;
-    }
-    done_beats += chunk;
-
-    if (done_beats < beats && eth_dma_clear_int_quiescent() < 0) {
-      printf("[eth] TX chunk ended with DMA still active\n");
-      return -1;
-    }
-  }
-
-  return 0;
+  return eth_dma_send_prepared_bytes(len);
 }
 
 static inline void eth_send_frame(const uint8_t *buf, int len) {
@@ -281,8 +292,10 @@ static inline void eth_send_frame(const uint8_t *buf, int len) {
  * @param maxlen Capacity of `buf`.
  * @return Received frame length in bytes.
  */
-static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
-                                            long wait_spins) {
+static inline int eth_dma_receive_with_descriptor(
+    uint8_t *buf, int maxlen, long wait_spins,
+    uintptr_t descriptor_count_address, uintptr_t descriptor_info_address,
+    uint64_t descriptor_valid_mask, uintptr_t descriptor_pop_address) {
   uint64_t len_word;
   uint64_t length;
   uint64_t beats;
@@ -347,7 +360,7 @@ static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
                (unsigned long)status,
                (unsigned long)remaining,
                (unsigned long)eth_r64(ETH_DMA_M2S_TRIGGER),
-               (unsigned long)eth_r64(ETH_RX_COUNT));
+               (unsigned long)eth_r64(descriptor_count_address));
         return -1;
       }
     }
@@ -366,7 +379,7 @@ static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
            (unsigned long)eth_dma_harvest_int(),
            (unsigned long)eth_r64(ETH_DMA_S2M_TRIGGER),
            (unsigned long)actual_beats, ended_frame ? 1u : 0u,
-           (unsigned long)eth_r64(ETH_RX_COUNT),
+           (unsigned long)eth_r64(descriptor_count_address),
            (unsigned long)eth_r64(ETH_RX_BEATS));
 #endif
     done_beats += actual_beats;
@@ -382,14 +395,14 @@ static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
     return -1;
   }
 
-  for (long spin = 0; eth_r64(ETH_RX_COUNT) == 0; spin++) {
+  for (long spin = 0; eth_r64(descriptor_count_address) == 0; spin++) {
     if (spin >= ETH_DMA_POLL_SPINS) {
       printf("[eth] RX DMA saw last but RX_LEN was not published\n");
       return -1;
     }
   }
-  len_word = eth_r64(ETH_RX_LEN);
-  if ((len_word & ETH_RX_LEN_VALID) == 0) {
+  len_word = eth_r64(descriptor_info_address);
+  if ((len_word & descriptor_valid_mask) == 0) {
     printf("[eth] RX_COUNT nonzero but RX_LEN invalid\n");
     return -1;
   }
@@ -413,7 +426,17 @@ static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
       buf[i] = bounce[i];
     }
   }
+  if (descriptor_pop_address != 0) {
+    eth_w64(descriptor_pop_address, 1);
+  }
   return (int)length;
+}
+
+static inline int eth_recv_frame_with_limit(uint8_t *buf, int maxlen,
+                                            long wait_spins) {
+  return eth_dma_receive_with_descriptor(
+      buf, maxlen, wait_spins, ETH_RX_COUNT, ETH_RX_LEN,
+      ETH_RX_LEN_VALID, 0);
 }
 
 static inline int eth_recv_frame_bounded(uint8_t *buf, int maxlen, int *rx_len) {

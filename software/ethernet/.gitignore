@@ -1,4 +1,5 @@
 /*.riscv
 /*.dump
 /pc/ethernet_pc
+/pc/ethernet_udp_pc
 /pc/*.txt

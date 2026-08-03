@@ -2,16 +2,19 @@ CC       ?= cc
 CPPFLAGS ?= -I../../..
 CFLAGS   ?= -std=c11 -Os -Wall -Wextra
 
-TARGET := ethernet_pc
-SRCS   := ethernet_pc.c ../protocol.c
+TARGETS := ethernet_pc ethernet_udp_pc
+SRCS   := ../protocol.c
 HDRS   := ../protocol.h
 
-all: $(TARGET)
+all: $(TARGETS)
 
-$(TARGET): $(SRCS) $(HDRS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(SRCS) -o $@
+ethernet_pc: ethernet_pc.c $(SRCS) $(HDRS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) ethernet_pc.c $(SRCS) -o $@
+
+ethernet_udp_pc: ethernet_udp_pc.c $(SRCS) $(HDRS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) ethernet_udp_pc.c $(SRCS) -o $@
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGETS)
 
 .PHONY: all clean
