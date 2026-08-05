@@ -65,6 +65,22 @@ static inline int rtl8211e_link_up(int phy) {
 }
 
 /**
+ * Poll until the PHY link is up or the polling limit is reached.
+ *
+ * @param phy PHY address.
+ * @param max_polls Maximum number of link-status polls.
+ * @return 1 if link is up, 0 if the polling limit is reached.
+ */
+static inline int rtl8211e_wait_for_link(int phy, uint32_t max_polls) {
+  for (uint32_t polls = 0; polls < max_polls; polls++) {
+    if (rtl8211e_link_up(phy)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/**
  * Find and configure the RTL8211E for cable link mode.
  *
  * @param print Optional printf-compatible status callback.
@@ -112,7 +128,7 @@ static inline int rtl8211e_bringup(int (*print)(const char *, ...)) {
   if (print != 0) {
     print("[mdio] rgmii delay rx=%d tx=%d\n", RTL8211E_RGMII_RX_DELAY_ENABLE,
           RTL8211E_RGMII_TX_DELAY_ENABLE);
-    print("[mdio] link=%s\n", rtl8211e_link_up(phy) ? "up" : "down");
+    print("[mdio] auto-negotiation restarted\n");
   }
   return phy;
 }

@@ -117,6 +117,8 @@ static inline void eth_dma_cache_sync(void) {
 #define ETH_RX_WAIT_SPINS 50000000L
 #endif
 
+/** Wait indefinitely for a queued DMA receive descriptor to complete. */
+#define ETH_DMA_WAIT_FOREVER (-1L)
 #define ETH_DMA_MAX_CHUNK_BEATS 256u
 
 /**
@@ -284,12 +286,21 @@ static inline void eth_send_frame(const uint8_t *buf, int len) {
 }
 
 /**
- * Receive one L2 frame into `buf`.
+ * Receive one stream frame and its matching frontend descriptor into `buf`.
  *
- * If the frame is longer than `maxlen`, the excess bytes are drained and the full received length is still returned.
+ * If the frame is longer than `maxlen`, the excess bytes are drained and the
+ * full received length is still returned. A finite timeout does not cancel the
+ * queued S2M DMA descriptor. A caller that intends to receive another frame
+ * after an idle period must use #ETH_DMA_WAIT_FOREVER unless it first resets or
+ * otherwise cancels the DMA request.
  *
  * @param buf Destination buffer.
  * @param maxlen Capacity of `buf`.
+ * @param wait_spins Maximum polling iterations, or #ETH_DMA_WAIT_FOREVER.
+ * @param descriptor_count_address Frontend descriptor-count CSR address.
+ * @param descriptor_info_address Frontend descriptor-information CSR address.
+ * @param descriptor_valid_mask Valid bit in the descriptor-information CSR.
+ * @param descriptor_pop_address Optional descriptor-pop CSR address, or zero.
  * @return Received frame length in bytes.
  */
 static inline int eth_dma_receive_with_descriptor(
@@ -451,7 +462,7 @@ static inline int eth_recv_frame_bounded(uint8_t *buf, int maxlen, int *rx_len) 
 }
 
 static inline int eth_recv_frame(uint8_t *buf, int maxlen) {
-  return eth_recv_frame_with_limit(buf, maxlen, -1);
+  return eth_recv_frame_with_limit(buf, maxlen, ETH_DMA_WAIT_FOREVER);
 }
 
 #ifdef __cplusplus

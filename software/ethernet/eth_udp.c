@@ -76,7 +76,7 @@ int eth_udp_receive(uint8_t *payload, size_t capacity,
   }
 
   const int length = eth_dma_receive_with_descriptor(
-      payload, (int)capacity, ETH_RX_WAIT_SPINS, ETH_UDP_RX_COUNT,
+      payload, (int)capacity, ETH_DMA_WAIT_FOREVER, ETH_UDP_RX_COUNT,
       ETH_UDP_RX_INFO, ETH_UDP_RX_VALID, 0);
   if (length < 0) {
     return -1;

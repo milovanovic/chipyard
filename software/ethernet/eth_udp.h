@@ -40,7 +40,18 @@ int eth_udp_send(const uint8_t *payload, size_t length,
                  uint32_t destination_ip, uint16_t source_port,
                  uint16_t destination_port);
 
-/** Receive one UDP payload and its committed metadata. */
+/**
+ * Receive one UDP payload and its committed metadata.
+ *
+ * This function blocks until a complete valid UDP datagram is available or
+ * the DMA reports an error. The DMA cannot cancel a queued receive descriptor,
+ * so an idle network is not treated as a receive timeout.
+ *
+ * @param[out] payload Destination for the received UDP payload.
+ * @param capacity Capacity of `payload` in bytes.
+ * @param[out] metadata Metadata committed with the received payload.
+ * @return Received payload length on success, or -1 on error.
+ */
 int eth_udp_receive(uint8_t *payload, size_t capacity,
                     eth_udp_metadata_t *metadata);
 

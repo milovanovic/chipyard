@@ -15,13 +15,7 @@ enum {
 // Wait briefly for the PHY link and report the MAC status.
 static void wait_for_link(int phy) {
   printf("[ethernet] waiting for link...\n");
-  bool link = false;
-  for (uint32_t spins = 0; spins < kLinkPollMax; spins++) {
-    if (phy >= 0 && rtl8211e_link_up(phy)) {
-      link = true;
-      break;
-    }
-  }
+  const bool link = phy >= 0 && rtl8211e_wait_for_link(phy, kLinkPollMax);
 
   if (link) {
     printf("[ethernet] LINK UP speed=%lu status=0x%lx\n", (unsigned long)eth_link_speed(),
