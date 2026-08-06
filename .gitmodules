@@ -165,4 +165,4 @@
 	url = https://github.com/ucb-bar/radiance.git
 [submodule "generators/ethernet"]
 	path = generators/ethernet
-	url = git@github.com:milovanovic/ethernet-wrapper.git
+	url = git@github.com:milovanovic/ethernet-mac.git
