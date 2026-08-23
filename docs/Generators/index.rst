@@ -25,6 +25,7 @@ so changes to the generators themselves will automatically be used when building
    Gemmini
    Saturn
    IceNet
+   ethernet
    TestChipIP
    Rocket-Chip-Generators
    CVA6
