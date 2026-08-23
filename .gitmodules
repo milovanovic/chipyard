@@ -168,4 +168,4 @@
 	url = https://github.com/ucb-bar/spec2026-workload.git
 [submodule "generators/ethernet"]
 	path = generators/ethernet
-	url = git@github.com:milovanovic/ethernet-mac.git
+	url = https://github.com/ucb-bar/ethernet-mac.git
