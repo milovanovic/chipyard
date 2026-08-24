@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package chipyard.fpga.nexysvideo
+package chipyard.fpga.genesys2
 
 import org.chipsalliance.cde.config._
 import org.chipsalliance.diplomacy.lazymodule._
@@ -10,10 +10,10 @@ class WithNoDesignKey extends Config((site, here, up) => {
   case DesignKey => (p: Parameters) => new SimpleLazyRawModule()(p)
 })
 
-// DOC include start: WithNexysVideoTweaks and Rocket
-class WithNexysVideoTweaks(freqMHz: Double = 50) extends Config(
-  new WithNexysVideoUARTTSI ++
-  new WithNexysVideoDDRTL ++
+// DOC include start: WithGenesys2Tweaks and Rocket
+class WithGenesys2Tweaks(freqMHz: Double = 50) extends Config(
+  new WithGenesys2UARTTSI ++
+  new WithGenesys2DDRTL ++
   new WithNoDesignKey ++
   new testchipip.tsi.WithUARTTSIClient ++
   new chipyard.harness.WithSerialTLTiedOff ++
@@ -24,43 +24,43 @@ class WithNexysVideoTweaks(freqMHz: Double = 50) extends Config(
   new chipyard.config.WithNoDebug ++ // no jtag
   new chipyard.config.WithNoUART ++ // use UART for the UART-TSI thing instad
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(512) << 20) ++ // 512mb on Nexys Video
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(1024) << 20) ++ // 1gb on Genesys2
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
-class RocketNexysVideoConfig extends Config(
-  new WithNexysVideoTweaks ++
+class RocketGenesys2Config extends Config(
+  new WithGenesys2Tweaks ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
-// DOC include end: WithNexysVideoTweaks and Rocket
+// DOC include end: WithGenesys2Tweaks and Rocket
 
-// DOC include start: WithTinyNexysVideoTweaks and Rocket
-class WithTinyNexysVideoTweaks extends Config(
-  new WithNexysVideoUARTTSI ++
+// DOC include start: WithTinyGenesys2Tweaks and Rocket
+class WithTinyGenesys2Tweaks extends Config(
+  new WithGenesys2UARTTSI ++
   new WithNoDesignKey ++
-  new sifive.fpgashells.shell.xilinx.WithNoNexysVideoShellDDR ++ // no DDR
+  new sifive.fpgashells.shell.xilinx.WithNoGenesys2ShellDDR ++ // no DDR
   new testchipip.tsi.WithUARTTSIClient ++
   new chipyard.harness.WithSerialTLTiedOff ++
-  new chipyard.harness.WithHarnessBinderClockFreqMHz(50) ++
-  new chipyard.config.WithMemoryBusFrequency(50.0) ++
-  new chipyard.config.WithFrontBusFrequency(50.0) ++
-  new chipyard.config.WithSystemBusFrequency(50.0) ++
-  new chipyard.config.WithPeripheryBusFrequency(50.0) ++
-  new chipyard.config.WithControlBusFrequency(50.0) ++
+  new chipyard.harness.WithHarnessBinderClockFreqMHz(100) ++
+  new chipyard.config.WithMemoryBusFrequency(100.0) ++
+  new chipyard.config.WithFrontBusFrequency(100.0) ++
+  new chipyard.config.WithSystemBusFrequency(100.0) ++
+  new chipyard.config.WithPeripheryBusFrequency(100.0) ++
+  new chipyard.config.WithControlBusFrequency(100.0) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
   new chipyard.config.WithNoDebug ++ // no jtag
   new chipyard.config.WithNoUART ++ // use UART for the UART-TSI thing instad
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
-class TinyRocketNexysVideoConfig extends Config(
-  new WithTinyNexysVideoTweaks ++
+class TinyRocketGenesys2Config extends Config(
+  new WithTinyGenesys2Tweaks ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.TinyRocketConfig)
-  // DOC include end: WithTinyNexysVideoTweaks and Rocket
+  // DOC include end: WithTinyGenesys2Tweaks and Rocket
 
-class BringupNexysVideoConfig extends Config(
-  new WithNexysVideoSerialTLToGPIO ++
-  new WithNexysVideoTweaks(freqMHz = 50) ++
+class BringupGenesys2Config extends Config(
+  new WithGenesys2SerialTLToGPIO ++
+  new WithGenesys2Tweaks(freqMHz = 50) ++
   new testchipip.serdes.WithSerialTLPHYParams(
     testchipip.serdes.DecoupledInternalSyncSerialPhyParams(freqMHz = 50)) ++
   new chipyard.ChipBringupHostConfig)

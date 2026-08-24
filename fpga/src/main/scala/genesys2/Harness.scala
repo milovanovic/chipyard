@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package chipyard.fpga.nexysvideo
+package chipyard.fpga.genesys2
 
 import chipyard._
 import chipyard.harness._
@@ -10,6 +10,7 @@ import freechips.rocketchip.prci._
 import freechips.rocketchip.subsystem.SystemBusKey
 import freechips.rocketchip.tilelink._
 import org.chipsalliance.cde.config.Parameters
+import org.chipsalliance.diplomacy._
 import org.chipsalliance.diplomacy.bundlebridge.BundleBridgeSource
 import org.chipsalliance.diplomacy.lazymodule.LazyModule
 import sifive.blocks.devices.uart._
@@ -17,7 +18,7 @@ import sifive.fpgashells.clocks._
 import sifive.fpgashells.shell._
 import sifive.fpgashells.shell.xilinx._
 
-class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoShell {
+class Genesys2Harness(override implicit val p: Parameters) extends Genesys2Shell {
   def dp = designParameters
 
   val clockOverlay = dp(ClockInputOverlayKey).map(_.place(ClockInputDesignInput())).head
@@ -25,7 +26,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   val harnessSysPLLNode = harnessSysPLL()
   val dutFreqMHz = (dp(SystemBusKey).dtsFrequency.get / (1000 * 1000)).toInt
   val dutClock = ClockSinkNode(freqMHz = dutFreqMHz)
-  println(s"NexysVideo FPGA Base Clock Freq: ${dutFreqMHz} MHz")
+  println(s"Genesys2 FPGA Base Clock Freq: ${dutFreqMHz} MHz")
   val dutWrangler = LazyModule(new ResetWrangler())
   val dutGroup = ClockGroup()
   dutClock := dutWrangler.node := dutGroup := harnessSysPLLNode
@@ -36,13 +37,13 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
   val uartOverlay = dp(UARTOverlayKey).head.place(UARTDesignInput(io_uart_bb))
 
   // Optional DDR
-  val ddrOverlay = if (p(NexysVideoShellDDR)) Some(dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode)).asInstanceOf[DDRNexysVideoPlacedOverlay]) else None
-  val ddrClient = if (p(NexysVideoShellDDR)) Some(TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
+  val ddrOverlay = if (p(Genesys2ShellDDR)) Some(dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode)).asInstanceOf[DDRGenesys2PlacedOverlay]) else None
+  val ddrClient = if (p(Genesys2ShellDDR)) Some(TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
     name = "chip_ddr",
     sourceId = IdRange(0, 1 << dp(ExtTLMem).get.master.idBits)
   )))))) else None
-  val ddrBlockDuringReset = if (p(NexysVideoShellDDR)) Some(LazyModule(new TLBlockDuringReset(4))) else None
-  if (p(NexysVideoShellDDR)) { ddrOverlay.get.overlayOutput.ddr := ddrBlockDuringReset.get.node := ddrClient.get }
+  val ddrBlockDuringReset = if (p(Genesys2ShellDDR)) Some(LazyModule(new TLBlockDuringReset(4))) else None
+  if (p(Genesys2ShellDDR)) { ddrOverlay.get.overlayOutput.ddr := ddrBlockDuringReset.get.node := ddrClient.get }
 
   val ledOverlays = dp(LEDOverlayKey).map(_.place(LEDDesignInput()))
   val all_leds = ledOverlays.map(_.overlayOutput.led)
@@ -56,10 +57,10 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
     all_leds.foreach(_ := DontCare)
     clockOverlay.overlayOutput.node.out.head._1.reset := ~resetPin
 
-    val clk_100mhz = clockOverlay.overlayOutput.node.out.head._1.clock
+    val clk_200mhz = clockOverlay.overlayOutput.node.out.head._1.clock
 
     // Blink the status LEDs for sanity
-    withClockAndReset(clk_100mhz, dutClock.in.head._1.reset) {
+    withClockAndReset(clk_200mhz, dutClock.in.head._1.reset) {
       val period = (BigInt(100) << 20) / status_leds.size
       val counter = RegInit(0.U(log2Ceil(period).W))
       val on = RegInit(0.U(log2Ceil(status_leds.size).W))
@@ -70,7 +71,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
       }
     }
 
-    other_leds(0) := resetPin
+    other_leds.head := resetPin
 
     harnessSysPLL.plls.foreach(_._1.getReset.get := pllReset)
 
@@ -79,7 +80,7 @@ class NexysVideoHarness(override implicit val p: Parameters) extends NexysVideoS
     def referenceReset = dutClock.in.head._1.reset
     def success = { require(requirement = false, "Unused"); false.B }
 
-    if (p(NexysVideoShellDDR)) { 
+    if (p(Genesys2ShellDDR)) { 
       ddrOverlay.get.mig.module.clock := harnessBinderClock
       ddrOverlay.get.mig.module.reset := harnessBinderReset
       ddrBlockDuringReset.get.module.clock := harnessBinderClock
