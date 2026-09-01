@@ -41,11 +41,7 @@ class WithTinyGenesys2Tweaks extends Config(
   new testchipip.tsi.WithUARTTSIClient ++
   new chipyard.harness.WithSerialTLTiedOff ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(100) ++
-  new chipyard.config.WithMemoryBusFrequency(100.0) ++
-  new chipyard.config.WithFrontBusFrequency(100.0) ++
-  new chipyard.config.WithSystemBusFrequency(100.0) ++
-  new chipyard.config.WithPeripheryBusFrequency(100.0) ++
-  new chipyard.config.WithControlBusFrequency(100.0) ++
+  new chipyard.config.WithUniformBusFrequencies(100) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
   new chipyard.config.WithNoDebug ++ // no jtag
