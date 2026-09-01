@@ -32,12 +32,12 @@ class WithSystemModifications extends Config((site, here, up) => {
 })
 
 // DOC include start: AbstractZCU104 and Rocket
-class WithZCU104Tweaks extends Config(
+class WithZCU104Tweaks(freqMHz: Double = 100) extends Config(
   // clocking
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
-  new chipyard.config.WithUniformBusFrequencies(100) ++
-  new WithFPGAFrequency(100) ++ // default 100MHz freq
+  new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
+  new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   // harness binders
   new WithUART ++
   new WithSPISDCard ++
@@ -66,8 +66,8 @@ class WithZCU104NoDDRTweaks extends Config(
   new chipyard.config.WithNoDebug ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
+  new chipyard.harness.WithHarnessBinderClockFreqMHz(50) ++
   new chipyard.config.WithUniformBusFrequencies(50) ++
-  new WithFPGAFrequency(50) ++
   new freechips.rocketchip.subsystem.WithoutTLMonitors
 )
 
@@ -80,21 +80,6 @@ class RocketZCU104NoDDRConfig extends Config(
 // DOC include end: AbstractZCU104 and Rocket
 
 class BoomZCU104Config extends Config(
-  new WithFPGAFrequency(50) ++
-  new WithZCU104Tweaks ++
+  new WithZCU104Tweaks(freqMHz = 50) ++
   new chipyard.MegaBoomV3Config
 )
-
-class WithFPGAFrequency(fMHz: Double) extends Config(
-  new chipyard.harness.WithHarnessBinderClockFreqMHz(fMHz) ++
-  new chipyard.config.WithSystemBusFrequency(fMHz) ++
-  new chipyard.config.WithPeripheryBusFrequency(fMHz) ++
-  new chipyard.config.WithControlBusFrequency(fMHz) ++
-  new chipyard.config.WithFrontBusFrequency(fMHz) ++
-  new chipyard.config.WithMemoryBusFrequency(fMHz)
-)
-
-class WithFPGAFreq25MHz extends WithFPGAFrequency(25)
-class WithFPGAFreq50MHz extends WithFPGAFrequency(50)
-class WithFPGAFreq75MHz extends WithFPGAFrequency(75)
-class WithFPGAFreq100MHz extends WithFPGAFrequency(100)
